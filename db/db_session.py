@@ -16,13 +16,9 @@ class DB_Session() :
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
 
-            cursor.execute("""
-                INSERT INTO cyclists (username, email, password_hash, role ) 
-                VALUES (?, ?, ?, ?) """, 
-                    db_user.username,
-                    db_user.email,
-                    db_user.password_hash,
-                    db_user.role)   
+            statement = "INSERT INTO user (username, email, password_hash, role) "
+            statement += f"VALUES ({db_user.username}, {db_user.email}, {db_user.password_hash}, {db_user.role})"
+            cursor.execute(statement)
 
             number_of_lines = cursor.rowcount     
 
@@ -33,14 +29,30 @@ class DB_Session() :
     def get_user_by_id(self, user_id: int) -> DB_User:
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
+            cursor.execute(f"SELECT id, username, email, password_hash, role FROM user WHERE id = {user_id}")
+            rows = cursor.fetchall()
+
+            if rows.count == 1 :
+                db_user = self.load_user(rows)
+                return DB_User()
+            
+        return None
 
         return DB_User()
     
     def get_user_list(self) -> List[DB_User]:
+        user_list = list() 
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
+            cursor.execute("SELECT id, username, email, password_hash, role FROM user")
+            rows = cursor.fetchall()
 
-        user_list = list() 
+            if rows.count == 0:
+                return None
+
+            for row in rows:
+                user_list.append(self.load_user(row))
+
         user_list : List[DB_User] = user_list
 
         return user_list 
@@ -48,8 +60,24 @@ class DB_Session() :
     def get_user_by_name(self, username : str) -> DB_User:
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
+            cursor.execute(f"SELECT id, username, email, password_hash, role FROM user WHERE username = {username}")
+            rows = cursor.fetchall()
 
-        return DB_User()
+            if rows.count == 1 :
+                db_user = self.load_user(rows)
+                return DB_User()
+            
+        return None
+    
+    def load_user(self, row) -> DB_User :
+        db_user = DB_User(
+            id = int(row["id"]),
+            username= str(row["username"]),
+            email = str(row["email"]),
+            password_hash = str(row["password_hash"]), 
+            role = str(row["role"])
+        )
+        return db_user
     
     #__________________________________________________________________________
     #

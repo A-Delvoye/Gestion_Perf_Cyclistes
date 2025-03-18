@@ -1,9 +1,10 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import Optional
 
 class DB_User(BaseModel):
-    id: Optional[int] = Field(exclude=True)
-    username : str = Field()
-    email: str = Field()
-    password_hash: str = Field()
-    role: str = Field()
+    id: Optional[int] = None
+    username : str 
+    email: str 
+    password_hash: str 
+    role: str 
+    
