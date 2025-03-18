@@ -16,9 +16,9 @@ class DB_Session() :
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
 
-            statement = "INSERT INTO user (username, email, password_hash, role) "
-            statement += f"VALUES ({db_user.username}, {db_user.email}, {db_user.password_hash}, {db_user.role})"
-            cursor.execute(statement)
+            statement = "INSERT INTO user (username, email, password_hash, role)"
+            statement += " VALUES (?, ?, ?, ?);"
+            cursor.execute(statement, (db_user.username,  db_user.email, db_user.password_hash, db_user.role))
 
             number_of_lines = cursor.rowcount     
 
@@ -71,11 +71,11 @@ class DB_Session() :
     
     def load_user(self, row) -> DB_User :
         db_user = DB_User(
-            id = int(row["id"]),
-            username= str(row["username"]),
-            email = str(row["email"]),
-            password_hash = str(row["password_hash"]), 
-            role = str(row["role"])
+            id = int(row[0]),
+            username= str(row[1]),
+            email = str(row[2]),
+            password_hash = str(row[3]), 
+            role = str(row[4])
         )
         return db_user
     
