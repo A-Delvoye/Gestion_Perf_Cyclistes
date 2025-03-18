@@ -1,1 +1,3 @@
 fastapi[standard]
+bcrypt==4.3.0
+jwt==1.3.1

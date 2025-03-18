@@ -5,7 +5,7 @@ from pydantic import BaseModel
 # region AuthData données utilisées pour le login 
 #______________________________________________________________________________
 class AuthData(BaseModel):
-    email:str
+    username:str
     password:str
 
 #______________________________________________________________________________
