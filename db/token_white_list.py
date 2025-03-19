@@ -2,11 +2,11 @@ from datetime import datetime, timezone
 
 #application imports
 from db.db_session import DB_Session 
-from models.token_valide_db import TokenValideDB
+from models.jeton_valide_db import JetonValideDB
 
-def register_token(token : str, expired_time: datetime):
+def register_token(token : str, expired_time: datetime): 
+    db_token  = JetonValideDB(expiration = expired_time, jeton = token)
     db_session = DB_Session()
-    db_token  = TokenValideDB(expires = expired_time, token = token)
     db_session.insert_token(db_token)
 
 def is_valid_token(token : str) -> bool :
@@ -16,7 +16,7 @@ def is_valid_token(token : str) -> bool :
         return False
     
     now = datetime.now(timezone.utc)
-    expiration = db_token.expires.replace(tzinfo=timezone.utc)
+    expiration = db_token.expiration.replace(tzinfo=timezone.utc)
 
     if now > expiration :
         return False

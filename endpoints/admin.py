@@ -40,9 +40,6 @@ def get_users(
     payload = verify_token(token)
     db_admin = get_current_admin(payload, db_session)
 
-    # statement = select(UserInDb)
-    # db_users = db_session.exec(statement).all()
-
     db_session = DB_Session()
     db_users = db_session.get_user_list()
 

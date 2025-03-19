@@ -24,7 +24,7 @@ with sqlite3.connect("db/gest_perf_cycl.db") as conn :
     conn.commit()
     print(f"Table '{table_name}' créée avec succès !")
 
-    table_name = "tokens_valides"
+    table_name = "jetons_valides"
     cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
     conn.commit()
 
@@ -32,8 +32,8 @@ with sqlite3.connect("db/gest_perf_cycl.db") as conn :
     cursor.execute(f"""
         CREATE TABLE {table_name} (
             id INTEGER NOT NULL, 
-            expires DATETIME NOT NULL, 
-            token VARCHAR NOT NULL, 
+            expiration DATETIME NOT NULL, 
+            jeton VARCHAR NOT NULL, 
             PRIMARY KEY (id)
         );
     """)

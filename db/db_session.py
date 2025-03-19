@@ -1,6 +1,6 @@
 import sqlite3
 from models.utilisateur_db import UtilisateurDB
-from models.token_valide_db import TokenValideDB
+from models.jeton_valide_db import JetonValideDB
 from datetime import datetime, timezone
 from typing import List
 
@@ -8,7 +8,8 @@ class DB_Session() :
     def __init__(self) :
         self.database_path  = "db/gest_perf_cycl.db"
         self.user_tablename = "utilisateurs"
-        self.token_tablename = "tokens_valides"
+        self.token_tablename = "jetons_valides"
+        self.date_format_string = "%Y-%m-%d %H:%M:%S.%f"
 
     #__________________________________________________________________________
     #
@@ -33,10 +34,10 @@ class DB_Session() :
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
             cursor.execute(f"SELECT id, username, email, password_hash, role FROM {self.user_tablename} WHERE id = {user_id}")
-            rows = cursor.fetchall()
+            result = cursor.fetchone()
 
-            if rows.count == 1 :
-                db_user = self.load_user(rows)
+            if result :
+                db_user = self.load_user(result)
                 return UtilisateurDB()
             
         return None
@@ -46,10 +47,14 @@ class DB_Session() :
         user_list = list() 
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
-            cursor.execute(f"SELECT id, username, email, password_hash, role FROM {self.user_tablename}")
+
+            statement  = f"SELECT id, username, email, password_hash, role"
+            statement +=f" FROM {self.user_tablename}"
+  
+            cursor.execute(statement)
             rows = cursor.fetchall()
 
-            if rows.count == 0:
+            if len(rows) == 0:
                 return None
 
             for row in rows:
@@ -62,12 +67,17 @@ class DB_Session() :
     def get_user_by_name(self, username : str) -> UtilisateurDB:
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
-            cursor.execute(f"SELECT id, username, email, password_hash, role FROM {self.user_tablename} WHERE username = {username}")
-            rows = cursor.fetchall()
 
-            if rows.count == 1 :
-                db_user = self.load_user(rows)
-                return UtilisateurDB()
+            statement  = "SELECT id, username, email, password_hash, role"
+            statement +=f" FROM {self.user_tablename}"
+            statement +=f" WHERE username = '{username}'"
+    
+            cursor.execute(statement)
+            result = cursor.fetchone()
+
+            if result :
+                db_user = self.load_user(result)
+                return db_user
             
         return None
     
@@ -86,19 +96,29 @@ class DB_Session() :
     # region Jeton 
     #__________________________________________________________________________
 
-    def insert_token(self, db_token : TokenValideDB) :
+    
+
+    def insert_token(self, db_token : JetonValideDB) :
+        with sqlite3.connect(self.database_path) as connection : 
+            cursor : sqlite3.Cursor = connection.cursor()
+
+            date_str = db_token.expiration.strftime(self.date_format_string)
+
+            statement = f"INSERT INTO {self.token_tablename} (expiration, jeton)"
+            statement += " VALUES (?, ?);"
+            cursor.execute(statement, (date_str,  db_token.jeton))
+            rows = cursor.fetchall()
+
+
+        return True
+    
+    def update_token(self, db_token : JetonValideDB) :
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
 
         return True
     
-    def update_token(self, db_token : TokenValideDB) :
-        with sqlite3.connect(self.database_path) as connection : 
-            cursor : sqlite3.Cursor = connection.cursor()
-
-        return True
-    
-    def delete_token(self, db_token : TokenValideDB):
+    def delete_token(self, db_token : JetonValideDB):
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
 
@@ -117,9 +137,9 @@ class DB_Session() :
 
         return True 
     
-    def get_db_token(self, token : str) -> TokenValideDB:
+    def get_db_token(self, token : str) -> JetonValideDB:
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
 
-        return TokenValideDB()
+        return JetonValideDB()
     

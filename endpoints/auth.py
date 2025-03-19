@@ -62,7 +62,7 @@ def login_for_access_token( auth_data: AuthData ) -> Token:
         expires_delta=access_token_expires
     )
 
-    register_token(access_token, expired_time, db_session)
+    register_token(access_token, expired_time)
 
     # Retourne le token d'accès et le type de token
     return Token (access_token = access_token, token_type = "bearer")
