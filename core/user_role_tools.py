@@ -6,9 +6,9 @@ from typing import Optional
 from db.db_session import DB_Session
 from models.utilisateur_db import UtilisateurDB
 
-def get_current_user(payload, need_activated_user:bool = True) -> UtilisateurDB :
+def get_current_user(payload) -> UtilisateurDB :
     """
-    raise HTTP_404_NOT_FOUND or HTTP_401_UNAUTHORIZED Exception
+    raise HTTP_404_NOT_FOUND
     """
 
     db_session = DB_Session()
@@ -18,13 +18,13 @@ def get_current_user(payload, need_activated_user:bool = True) -> UtilisateurDB 
 
     user = db_session.get_user_by_id(data_id)
 
-    raise_user_exceptions(need_activated_user, user)
+    raise_user_exceptions(user)
     
     return user
 
-def get_current_admin(payload, need_activated_user:bool = True) -> UtilisateurDB :
+def get_current_admin(payload) -> UtilisateurDB :
     """
-    raise HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED or HTTP_403_FORBIDDEN Exception
+    raise HTTP_404_NOT_FOUND or HTTP_401_UNAUTHORIZED
     """
 
     db_session = DB_Session()
@@ -34,24 +34,19 @@ def get_current_admin(payload, need_activated_user:bool = True) -> UtilisateurDB
 
     user = db_session.get_user_by_id(data_id)
     
-    raise_user_exceptions(need_activated_user, user)
+    raise_user_exceptions(user)
 
     if user.role != "admin" :
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, 
+            status_code=status.HTTP_401_UNAUTHORIZED, 
             detail="Not enough permissions")
     
     return user
 
-def raise_user_exceptions(need_activated_user: bool, user : Optional[UtilisateurDB]):
+def raise_user_exceptions(user : Optional[UtilisateurDB]):
     if not user :
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
             detail="User not found")
     
-    if need_activated_user :
-        if not user.is_active : 
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, 
-                detail="User not activated")
 

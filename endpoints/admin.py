@@ -34,11 +34,11 @@ def get_users(
     token : str  = Depends(admin_scheme), 
     ) -> list[UserInfoData]:
 
-    if not is_valid_token(token, db_session) :
+    if not is_valid_token(token) :
         raise unauthorised_exception
     
     payload = verify_token(token)
-    db_admin = get_current_admin(payload, db_session)
+    db_admin = get_current_admin(payload)
 
     db_session = DB_Session()
     db_users = db_session.get_user_list()

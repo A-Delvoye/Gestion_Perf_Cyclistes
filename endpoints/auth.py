@@ -81,7 +81,7 @@ def logout(token: str = Depends(logout_scheme)):
         raise unauthorised_exception
 
     payload = verify_token(token)
-    db_user = get_current_user(payload, need_activated_user=False)
+    db_user = get_current_user(payload)
     
     invalidate_token(token)
 
