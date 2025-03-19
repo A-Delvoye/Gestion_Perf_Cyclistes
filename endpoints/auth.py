@@ -44,7 +44,7 @@ def login_for_access_token( auth_data: AuthData ) -> Token:
     # Cherche l'utilisateur dans la base de données par son email
     # statement = select(UserInDb).where(UserInDb.email == auth_data.email)
     # db_user = db_session.exec(statement).one_or_none()
-    db_session = DB_Session
+    db_session = DB_Session()
     db_user : DB_User = db_session.get_user_by_name(auth_data.username)
 
     # Vérifie si l'utilisateur existe et si le mot de passe est valide
