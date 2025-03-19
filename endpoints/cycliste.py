@@ -1,11 +1,11 @@
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from typing import List
 
-
 # application imports
 from core.password_tools import get_password_hash
-from core.user_role_tools import get_current_admin
+from core.user_role_tools import get_current_user
 
 from db.db_session import DB_Session
 from db.token_white_list import register_token, is_valid_token, invalidate_token
@@ -17,7 +17,7 @@ from utils.jwt_handlers import verify_token
 
 router = APIRouter()
 
-admin_scheme = OAuth2PasswordBearer(tokenUrl="/admin/users")
+cycliste_scheme = OAuth2PasswordBearer(tokenUrl="/cycliste")
 
 unauthorised_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
@@ -25,51 +25,23 @@ unauthorised_exception = HTTPException(
     headers={"WWW-Authenticate": "Bearer"},
 )
 
-#______________________________________________________________________________
-#
-# region Liste des utilisateurs (Admin)
-#______________________________________________________________________________
-@router.get("/admin/users", response_model=List[UserInfoData])
-def get_users(
-    token : str  = Depends(admin_scheme), 
-    ) -> list[UserInfoData]:
-
-    if not is_valid_token(token) :
-        raise unauthorised_exception
-    
-    payload = verify_token(token)
-    db_admin = get_current_admin(payload)
-
-    db_session = DB_Session()
-    db_users = db_session.get_user_list()
-
-    users_data = []
-    for db_user in db_users :
-        users_data.append(
-            UserInfoData (
-                username = db_user.username, 
-                email = db_user.email,
-                role = db_user.role))
-        
-    users_data : list[UserInfoData] = users_data
-    return users_data
 
 #______________________________________________________________________________
 #
-# region Création d'un utilisateur (Admin)
+# region Création d'un Cycliste 
 #______________________________________________________________________________
-@router.post("/admin/users", response_model=UserInfoData)
+@router.post("/cycliste", response_model=UserInfoData)
 def create_user(
     creation_data: UserCreationData, 
-    token : str = Depends(admin_scheme)) -> UserInfoData:
+    token : str = Depends(cycliste_scheme)) -> UserInfoData:
 
     if not is_valid_token(token) :
         raise unauthorised_exception
 
     payload = verify_token(token)
-    db_admin = get_current_admin(payload)
+    db_cyclist = get_current_user(payload)
 
-    if creation_data.role not in ["admin", "user"] :
+    if creation_data.role not in ["coach", "cycliste"] :
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Role does not exist")
