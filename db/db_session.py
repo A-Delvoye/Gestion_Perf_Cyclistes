@@ -16,7 +16,7 @@ class DB_Session() :
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
 
-            statement = "INSERT INTO user (username, email, password_hash, role)"
+            statement = "INSERT INTO app_user (username, email, password_hash, role)"
             statement += " VALUES (?, ?, ?, ?);"
             cursor.execute(statement, (db_user.username,  db_user.email, db_user.password_hash, db_user.role))
 
@@ -29,7 +29,7 @@ class DB_Session() :
     def get_user_by_id(self, user_id: int) -> DB_User:
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
-            cursor.execute(f"SELECT id, username, email, password_hash, role FROM user WHERE id = {user_id}")
+            cursor.execute(f"SELECT id, username, email, password_hash, role FROM app_user WHERE id = {user_id}")
             rows = cursor.fetchall()
 
             if rows.count == 1 :
@@ -44,7 +44,7 @@ class DB_Session() :
         user_list = list() 
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
-            cursor.execute("SELECT id, username, email, password_hash, role FROM user")
+            cursor.execute("SELECT id, username, email, password_hash, role FROM app_user")
             rows = cursor.fetchall()
 
             if rows.count == 0:
@@ -60,7 +60,7 @@ class DB_Session() :
     def get_user_by_name(self, username : str) -> DB_User:
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
-            cursor.execute(f"SELECT id, username, email, password_hash, role FROM user WHERE username = {username}")
+            cursor.execute(f"SELECT id, username, email, password_hash, role FROM app_user WHERE username = {username}")
             rows = cursor.fetchall()
 
             if rows.count == 1 :
