@@ -72,3 +72,15 @@ Le projet utilise une base de données SQLite avec les tables suivantes :
 Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou une pull request sur GitHub.
 
 
+
+# pour installer l'environnement : 
+    python -m venv .venv
+    source .venv/bin/activate
+
+# pour installer les dépendances : 
+    pip install -r requirements.txt
+
+# pour éxécuter l'application : 
+    uvicorn main:app --reload
+    use a navigator and see http://127.0.0.1:8000/docs
+
