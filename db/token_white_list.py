@@ -2,11 +2,11 @@ from datetime import datetime, timezone
 
 #application imports
 from db.db_session import DB_Session 
-from models.token_valide_db import DB_Token
+from models.token_valide_db import TokenValideDB
 
 def register_token(token : str, expired_time: datetime):
     db_session = DB_Session()
-    db_token  = DB_Token(expires = expired_time, token = token)
+    db_token  = TokenValideDB(expires = expired_time, token = token)
     db_session.insert_token(db_token)
 
 def is_valid_token(token : str) -> bool :

@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from endpoints import auth
+from endpoints import auth, admin
 from core.config import API_NAME, API_DESCRIPTION
 
 app = FastAPI(
@@ -10,3 +10,4 @@ app = FastAPI(
 # Inclure les routes définies dans les fichiers séparés
 #app.include_router(auth.router, prefix="??", tags=["auth"])
 app.include_router(auth.router)
+app.include_router(admin.router)
