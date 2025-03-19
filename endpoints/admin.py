@@ -77,7 +77,7 @@ def create_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Role does not exist")
     
-    db_user = DB_User(
+    db_user = UtilisateurDB(
         username = creation_data.username,
         email=creation_data.email,
         password_hash = get_password_hash(creation_data.password),
