@@ -13,7 +13,7 @@ from db.db_session import DB_Session
 from schemas.auth_data import Token, AuthData
 from utils.jwt_handlers import create_access_token, verify_token
 
-from models.user import DB_User
+from models.utilisateur_db import UtilisateurDB
 
 router = APIRouter()
 
@@ -45,7 +45,7 @@ def login_for_access_token( auth_data: AuthData ) -> Token:
     # statement = select(UserInDb).where(UserInDb.email == auth_data.email)
     # db_user = db_session.exec(statement).one_or_none()
     db_session = DB_Session()
-    db_user : DB_User = db_session.get_user_by_name(auth_data.username)
+    db_user : UtilisateurDB = db_session.get_user_by_name(auth_data.username)
 
     # Vérifie si l'utilisateur existe et si le mot de passe est valide
     if not db_user :

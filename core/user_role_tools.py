@@ -4,7 +4,7 @@ from typing import Optional
 
 # application imports
 from db.db_session import DB_Session
-from models.user import DB_User
+from models.utilisateur_db import DB_User
 
 def get_current_user(payload, need_activated_user:bool = True) -> DB_User :
     """

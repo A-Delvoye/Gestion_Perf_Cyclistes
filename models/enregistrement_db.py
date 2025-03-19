@@ -1,0 +1,2 @@
+class EnregistrementDB() :
+    pass

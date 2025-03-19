@@ -10,7 +10,7 @@ from core.user_role_tools import get_current_admin
 from db.db_session import DB_Session
 from db.token_white_list import register_token, is_valid_token, invalidate_token
 
-from models.user import DB_User
+from models.utilisateur_db import UtilisateurDB
 from schemas.user_data import UserInfoData, UserCreationData
 from schemas.auth_data import Token
 from utils.jwt_handlers import verify_token

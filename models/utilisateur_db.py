@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
-class DB_User(BaseModel):
+class UtilisateurDB(BaseModel):
     id: Optional[int] = None
     username : str 
     email: str 

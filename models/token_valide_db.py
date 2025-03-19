@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 
-class DB_Token():
+class TokenValideDB():
     id: int 
     expires : datetime 
     token : str 
