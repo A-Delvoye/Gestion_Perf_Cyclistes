@@ -1,0 +1,16 @@
+from pydantic import BaseModel
+from datetime import datetime
+
+class EnregistrementCreate(BaseModel):
+    """Schema for creating a new user.
+
+    This schema defines the required fields for creating a new user, including username, email, password, and optionally a role.
+    """
+
+    time: datetime
+    power: float
+    oxygen: float
+    cadence: float
+    HR: float
+    RF: float
+    date: datetime
