@@ -12,9 +12,10 @@ from db.db_session import DB_Session
 from db.token_white_list import register_token, is_valid_token, invalidate_token
 
 from models.utilisateur_db import UtilisateurDB
-from schemas.user_data import UserInfoData, UserCreationData
+from schemas.cyclist_data import CyclistInfoData, CyclisteUpdate, CyclisteCreate
 from schemas.auth_data import Token
 from utils.jwt_handlers import verify_token
+from utils.db_utils import get_db_connection
 
 router = APIRouter()
 
@@ -26,38 +27,101 @@ unauthorised_exception = HTTPException(
     headers={"WWW-Authenticate": "Bearer"},
 )
 
+
+#______________________________________________________________________________
+#
+# region Affichage d'un Cycliste 
+#______________________________________________________________________________
+
+@router.get("/get_cycliste")
+def get_cyclist_by_id(cycliste_id: int):
+ 
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    requete = "SELECT * FROM cyclistes WHERE id = ?"
+    cursor.execute(requete, (cycliste_id, ))
+    results = dict(cursor.fetchone())
+    
+    conn.close()
+    
+    return results
+
+#______________________________________________________________________________
+#
+# region Update d'un Cycliste 
+#______________________________________________________________________________
+@router.put("/update_cycliste/{cycliste_id}")
+def update_cycliste(cycliste_id: int, cycliste_data: CyclisteUpdate):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Vérifier si le cycliste existe
+    cursor.execute("SELECT * FROM cyclistes WHERE id = ?", (cycliste_id,))
+    existing_cycliste = cursor.fetchone()
+    
+    if not existing_cycliste:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Cycliste non trouvé")
+
+    # Mise à jour des informations du cycliste
+    requete = """
+        UPDATE cyclistes
+        SET nom = ?, age = ?, poids = ?, taille = ?, sexe = ?
+        WHERE id = ?
+    """
+    cursor.execute(requete, (cycliste_data.nom, cycliste_data.age, cycliste_data.poids, 
+                             cycliste_data.taille, cycliste_data.sexe, cycliste_id))
+    conn.commit()
+    conn.close()
+    
+    return {"message": f"Cycliste ID {cycliste_id} mis à jour avec succès"}
+
 #______________________________________________________________________________
 #
 # region Création d'un Cycliste 
 #______________________________________________________________________________
-@router.post("/cycliste", response_model=UserInfoData)
-def create_user(
-    creation_data: UserCreationData, 
-    token : str = Depends(cycliste_scheme)) -> UserInfoData:
-
-    if not is_valid_token(token) :
-        raise unauthorised_exception
-
-    payload = verify_token(token)
-    db_cyclist = get_current_user(payload)
-
-    if creation_data.role not in [role.value for role in ApiRole] :
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Role does not exist")
+@router.post("/create_cycliste")
+def create_cycliste(cycliste_data: CyclisteCreate):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+ # Insérer le cycliste dans la base de données
+    requete = """
+        INSERT INTO cyclistes (nom, age, poids, taille, sexe)
+        VALUES (?, ?, ?, ?, ?)
+    """
+    cursor.execute(requete, (cycliste_data.nom, cycliste_data.age, cycliste_data.poids, 
+                             cycliste_data.taille, cycliste_data.sexe))
+    conn.commit()
     
-    db_user = UtilisateurDB(
-        username = creation_data.username,
-        email=creation_data.email,
-        password_hash = get_password_hash(creation_data.password),
-        role = creation_data.role)
+    # Récupérer l'ID du cycliste inséré
+    cycliste_id = cursor.lastrowid
+    conn.close()
+    
+    return {"message": "Cycliste créé avec succès", "id": cycliste_id}
 
-    db_session = DB_Session()
-    db_session.insert_user(db_user)
+#______________________________________________________________________________
+#
+# region Delete d'un Cycliste 
+#______________________________________________________________________________
 
-    user_info_data = UserInfoData(
-        email = db_user.email, 
-        username = db_user.username,
-        role= db_user.role)     
-         
-    return user_info_data
+@router.delete("/delete_cycliste/{cycliste_id}")
+def delete_cycliste(cycliste_id: int):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Vérifier si le cycliste existe
+    cursor.execute("SELECT * FROM cyclistes WHERE id = ?", (cycliste_id,))
+    existing_cycliste = cursor.fetchone()
+    
+    if not existing_cycliste:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Cycliste non trouvé")
+
+    # Supprimer le cycliste
+    requete = "DELETE FROM cyclistes WHERE id = ?"
+    cursor.execute(requete, (cycliste_id,))
+    conn.commit()
+    conn.close()
+    
+    return {"message": f"Cycliste ID {cycliste_id} supprimé avec succès"}

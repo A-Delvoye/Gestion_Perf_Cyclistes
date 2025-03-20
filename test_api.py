@@ -18,8 +18,8 @@ from main import app
 
 users = [
     UserCreationData( 
-        username = "coach", 
-        email = "coach@coach.com", 
+        username = "admin", 
+        email = "admin@admin.com", 
         password ="admin", 
         role = ApiRole.admin.value),
     UserCreationData( 

@@ -10,7 +10,9 @@ app = FastAPI(
 
 # Inclure les routes définies dans les fichiers séparés
 #app.include_router(auth.router, prefix="??", tags=["auth"])
-app.include_router(auth.router)
+app.include_router(auth.router, prefix="", tags=["auth"])
 app.include_router(user.router)
 app.include_router(coach.router)
-#app.include_router(cycliste.router)
+app.include_router(cycliste.router, prefix="", tags=["get_cyclistes"])
+#app.include_router(enregistrement.router)
+#app.include_router(stats.router)
