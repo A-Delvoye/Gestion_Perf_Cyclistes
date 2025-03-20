@@ -9,9 +9,23 @@ class CyclistInfoData(BaseModel):
     """
     Cyclist information data 
     """
-    id_utilisateur : int
-    nom_cycliste : str
+    nom : str
     age : int
     poids : float
     taille : float
-    sexe : bool
+    sexe : str
+    utilisateur_id : int
+
+class CyclisteUpdate(BaseModel):
+    nom: str
+    age: int
+    poids: float
+    taille: float
+    sexe: str
+
+class CyclisteCreate(BaseModel):
+    nom: str
+    age: int
+    poids: float
+    taille: float
+    sexe: str

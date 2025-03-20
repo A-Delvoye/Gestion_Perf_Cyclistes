@@ -45,7 +45,7 @@ with sqlite3.connect("db/gest_perf_cycl.db") as conn :
     # Création de la table cyclistes
     
     cursor.execute(f"""
-        CREATE TABLE IF NOT EXISTS cyclists (
+        CREATE TABLE IF NOT EXISTS cyclistes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nom TEXT NOT NULL,
             age INTEGER NOT NULL,
@@ -53,7 +53,7 @@ with sqlite3.connect("db/gest_perf_cycl.db") as conn :
             taille REAL NOT NULL,
             sexe TEXT NOT NULL,
             utilisateur_id INTEGER,
-            FOREIGN KEY (id) REFERENCES Utilisateurs(id) ON DELETE CASCADE
+            FOREIGN KEY (utilisateur_id) REFERENCES Utilisateurs(id) ON DELETE CASCADE
         );
         """)    
 
@@ -181,13 +181,28 @@ with sqlite3.connect("db/gest_perf_cycl.db") as conn:
     cursor = conn.cursor()
     
     cursor.executemany("""
-        INSERT INTO cyclists (nom, age, poids, taille, sexe) 
+        INSERT INTO cyclistes (nom, age, poids, taille, sexe) 
         VALUES (?, ?, ?, ?, ?)
     """, cyclists_data)
 
+
+    # Récupérer tous les utilisateurs (on suppose qu'ils sont ajoutés dans le même ordre que la liste `users`)
+    cursor.execute("SELECT id FROM Utilisateurs WHERE role = 'cycliste'")
+    utilisateurs_ids = [row[0] for row in cursor.fetchall()]
+
+    # Vérifier que le nombre d'utilisateurs correspond au nombre de cyclistes
+    if len(utilisateurs_ids) < len(cyclists_data):
+        raise ValueError("Pas assez d'utilisateurs créés pour assigner à chaque cycliste.")
+
+    # Ajout des cyclistes avec un `utilisateur_id`
+    cyclists_data_with_id = [
+        (nom, age, poids, taille, sexe, utilisateurs_ids[i])
+        for i, (nom, age, poids, taille, sexe) in enumerate(cyclists_data)
+    ]
+
     conn.commit()
     print(f"{len(cyclists_data)} cyclistes ajoutés avec succès !")
-
+    print(f"{len(cyclists_data)} cyclistes ajoutés avec succès et liés aux utilisateurs !")
 #____________________________________________________________________
 # region Populate enregistrements
 #____________________________________________________________________
