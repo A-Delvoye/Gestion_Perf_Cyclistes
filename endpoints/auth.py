@@ -17,8 +17,7 @@ from models.utilisateur_db import UtilisateurDB
 
 router = APIRouter()
 
-#login_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-logout_scheme = OAuth2PasswordBearer(tokenUrl="/auth/logout")
+logout_scheme = OAuth2PasswordBearer(tokenUrl="/auth")
 
 unauthorised_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
