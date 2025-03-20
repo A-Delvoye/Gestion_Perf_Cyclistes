@@ -8,7 +8,10 @@ import sqlite3
 with sqlite3.connect("db/gest_perf_cycl.db") as conn :
     cursor = conn.cursor()
 
-    table_name = "utilisateurs"
+    # Activer les foreign keys
+    cursor.execute("PRAGMA foreign_keys = ON;")
+
+    table_name = "Utilisateurs"
     cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
     conn.commit()
 
@@ -16,12 +19,11 @@ with sqlite3.connect("db/gest_perf_cycl.db") as conn :
     
     cursor.execute(f"""
         CREATE TABLE IF NOT EXISTS {table_name} (
-            id INTEGER NOT NULL, 
+            id INTEGER PRIMARY KEY AUTOINCREMENT, 
             username VARCHAR NOT NULL, 
             email VARCHAR, 
             password_hash VARCHAR NOT NULL, 
-            role VARCHAR NOT NULL, 
-            PRIMARY KEY (id)
+            role VARCHAR NOT NULL
         );
     """)
 
@@ -33,12 +35,14 @@ with sqlite3.connect("db/gest_perf_cycl.db") as conn :
 #____________________________________________________________________
 with sqlite3.connect("db/gest_perf_cycl.db") as conn :
     cursor = conn.cursor()
+    # Activer les foreign keys
+    cursor.execute("PRAGMA foreign_keys = ON;")
 
     table_name = "cyclistes"
     cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
     conn.commit()
 
-    # Création de la table users
+    # Création de la table cyclistes
     
     cursor.execute(f"""
         CREATE TABLE IF NOT EXISTS cyclists (
@@ -48,7 +52,8 @@ with sqlite3.connect("db/gest_perf_cycl.db") as conn :
             poids REAL NOT NULL,
             taille REAL NOT NULL,
             sexe TEXT NOT NULL,
-            FOREIGN KEY (id) REFERENCES utilisateurs(id) ON DELETE CASCADE
+            utilisateur_id INTEGER,
+            FOREIGN KEY (id) REFERENCES Utilisateurs(id) ON DELETE CASCADE
         );
         """)    
 
@@ -61,6 +66,8 @@ with sqlite3.connect("db/gest_perf_cycl.db") as conn :
 
 with sqlite3.connect("db/gest_perf_cycl.db") as conn :
     cursor = conn.cursor()
+    # Activer les foreign keys
+    cursor.execute("PRAGMA foreign_keys = ON;")
 
     table_name = "enregistrements"
     cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
@@ -77,7 +84,7 @@ with sqlite3.connect("db/gest_perf_cycl.db") as conn :
             cadence_max REAL NOT NULL,
             f_cardiaque REAL NOT NULL,
             f_respiratoire REAL NOT NULL,
-            FOREIGN KEY (id) REFERENCES utilisateurs(id) ON DELETE CASCADE
+            FOREIGN KEY (id) REFERENCES Utilisateurs(id) ON DELETE CASCADE
 
         );
         """)    
