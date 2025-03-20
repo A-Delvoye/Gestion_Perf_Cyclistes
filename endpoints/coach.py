@@ -17,7 +17,8 @@ from utils.jwt_handlers import verify_token
 
 router = APIRouter()
 
-coach_scheme = OAuth2PasswordBearer(tokenUrl="/coach/cycliste")
+cyclist_list_scheme = OAuth2PasswordBearer(tokenUrl="/coach/cyclistes")
+stats_scheme = OAuth2PasswordBearer(tokenUrl="/coach/stats")
 stats_scheme = OAuth2PasswordBearer(tokenUrl="/coach/stats")
 
 unauthorised_exception = HTTPException(
@@ -30,9 +31,9 @@ unauthorised_exception = HTTPException(
 #
 # region Liste des utilisateurs (Admin)
 #______________________________________________________________________________
-@router.get("/coach/cycliste", response_model=List[UserInfoData])
+@router.get("/coach/cyclistes", response_model=List[UserInfoData])
 def get_users(
-    token : str  = Depends(coach_scheme), 
+    token : str  = Depends(cyclist_list_scheme), 
     ) -> list[UserInfoData]:
 
     if not is_valid_token(token) :
@@ -54,5 +55,7 @@ def get_users(
         
     users_data : list[UserInfoData] = users_data
     return users_data
+
+
 
 

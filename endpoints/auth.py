@@ -17,8 +17,7 @@ from models.utilisateur_db import UtilisateurDB
 
 router = APIRouter()
 
-#login_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-logout_scheme = OAuth2PasswordBearer(tokenUrl="/auth/logout")
+logout_scheme = OAuth2PasswordBearer(tokenUrl="/auth")
 
 unauthorised_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
@@ -30,7 +29,7 @@ unauthorised_exception = HTTPException(
 #
 # region Connexion et récupération du token
 #______________________________________________________________________________
-@router.post("/auth/login", response_model=Token)
+@router.post("/auth", response_model=Token)
 def login_for_access_token( auth_data: AuthData ) -> Token:
     """
     Connexion à l'API 'Gestion Performance Cyclistes' et récupération du jeton d'authentification
@@ -71,7 +70,7 @@ def login_for_access_token( auth_data: AuthData ) -> Token:
 #
 # region Déconnexion
 #______________________________________________________________________________
-@router.post("/auth/logout")
+@router.delete("/auth")
 def logout(token: str = Depends(logout_scheme)):
     """
     Déconnexion de l'API 'Gestion Performance Cyclistes'

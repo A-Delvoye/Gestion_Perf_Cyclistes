@@ -1,7 +1,7 @@
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from typing import List
+
 
 # application imports
 from core.password_tools import get_password_hash
@@ -18,7 +18,7 @@ from utils.jwt_handlers import verify_token
 
 router = APIRouter()
 
-cycliste_scheme = OAuth2PasswordBearer(tokenUrl="/cycliste")
+create_user_scheme = OAuth2PasswordBearer(tokenUrl="/user")
 
 unauthorised_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
@@ -28,24 +28,31 @@ unauthorised_exception = HTTPException(
 
 #______________________________________________________________________________
 #
-# region Création d'un Cycliste 
+# region Création d'un user (coach ou cycliste)
 #______________________________________________________________________________
-@router.post("/cycliste", response_model=UserInfoData)
+@router.post("/user", response_model=UserInfoData)
 def create_user(
     creation_data: UserCreationData, 
-    token : str = Depends(cycliste_scheme)) -> UserInfoData:
+    token : str = Depends(create_user_scheme)) -> UserInfoData:
 
     if not is_valid_token(token) :
         raise unauthorised_exception
 
     payload = verify_token(token)
-    db_cyclist = get_current_user(payload)
+    db_user = get_current_user(payload)
+
+    if creation_data.role == ApiRole.admin.value :
+        if db_user.role != ApiRole.admin.value :
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Only an admin can create an admin")
 
     if creation_data.role not in [role.value for role in ApiRole] :
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Role does not exist")
-    
+        if db_user.role != ApiRole.admin.value :
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Impossible to create a user with role {creation_data.role} ")
+        
     db_user = UtilisateurDB(
         username = creation_data.username,
         email=creation_data.email,
