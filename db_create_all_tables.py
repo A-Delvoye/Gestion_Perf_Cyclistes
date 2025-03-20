@@ -114,7 +114,7 @@ with sqlite3.connect("db/gest_perf_cycl.db") as conn :
     print(f"Table '{table_name}' créée avec succès !")
 
 #____________________________________________________________________
-# Populate users
+# region Populate users
 #____________________________________________________________________
 
 # Création d'un admin (= coach)
@@ -164,7 +164,7 @@ for user in users :
 print(f"{count} UtilisateurDB ajoutés")
 
 #____________________________________________________________________
-# Populate cyclistes
+# region Populate cyclistes
 #____________________________________________________________________
 
 # Ajout de cyclistes fictifs
@@ -188,7 +188,7 @@ with sqlite3.connect("db/gest_perf_cycl.db") as conn:
     print(f"{len(cyclists_data)} cyclistes ajoutés avec succès !")
 
 #____________________________________________________________________
-# Populate enregistrements
+# region Populate enregistrements
 #____________________________________________________________________
 
 from datetime import datetime
