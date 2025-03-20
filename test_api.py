@@ -4,13 +4,16 @@ import asyncio
 
 import json
 from typing import List
+from datetime import datetime, timezone
+
 import random
 
 from db.db_session import DB_Session
 from models.utilisateur_db import UtilisateurDB
 from schemas.auth_data import AuthData
 from schemas.user_data import UserInfoData, UserCreationData
-from core.password_tools import get_password_hash
+from schemas.record_data import RecordInfoData
+
 from core.api_roles import ApiRole
 
 
@@ -18,8 +21,8 @@ from main import app
 
 users = [
     UserCreationData( 
-        username = "coach", 
-        email = "coach@coach.com", 
+        username = "admin", 
+        email = "admin@admin.com", 
         password ="admin", 
         role = ApiRole.admin.value),
     UserCreationData( 
@@ -114,8 +117,6 @@ async def test_logout():
     else : 
         print ("test_logout : errors / ko")
 
-
-
 #______________________________________________________________________________
 #
 # region 3 et 4 /coach/users  create user
@@ -155,10 +156,10 @@ async def test_create_user(role : ApiRole):
 
     # Vérifications
     if response.status_code == 200 :
-        print ("test_create_user : OK")
+        print (f"test_create_user ({role.value}) : OK")
         #print(response.json())
     else : 
-        print ("test_create_user : errors / ko")
+        print (f"test_create_user({role.value}): errors / ko")
 
     #assert response.json()["email"] == user_data["email"]
 
@@ -189,21 +190,73 @@ async def test_get_users():
     # Vérifie la réponse et les résultats attendus
     if response.status_code == 200 :
         print ("test_get_users : OK")
-        print(response.json())
+        #print(response.json())
     else : 
         print ("test_get_users : errors / ko")
-    
-    # users = []
-    # try : 
-    #     json_data = response.json()
-    #     users : List[UserInfoData] = [UserInfoData.model_validate(user_data) for user_data in json_data]
-    # except:
-    #     pass
-    
-    # for user in users : 
-    #     print(user)
 
+#______________________________________________________________________________
+#
+# region 5 : /enregistrement création
+#______________________________________________________________________________
+async def test_creation_enregistrement():
 
+    numero_insertion = 1
+    user_data = users[numero_insertion]
+
+    login_response = await get_login_response(user_data)
+    jwt_token = get_token(login_response)
+    headers = get_headers(jwt_token)
+
+    record_data = RecordInfoData(
+        id_utilisateur=numero_insertion,
+        date=datetime(1234,12, 12,12,34,56,123456, tzinfo=timezone.utc),
+        puissance_max = 2.1,
+        vo2_max =  3.2,
+        cadence_max =  4.3,
+        f_cardiaque_max =  5.4,
+        f_respiratoire_max =  6.5
+    )
+
+    # Envoie une requête GET pour récupérer la liste des utilisateurs
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            "http://127.0.0.1:8000/enregistrement", 
+            data = record_data.model_dump_json(),
+            headers=headers )
+
+    # Vérifie la réponse et les résultats attendus
+    if response.status_code == 200 :
+        print ("test_enregistrement : OK")
+        print(response.json())
+    else : 
+        print ("test_enregistrement : errors / ko")
+    
+#______________________________________________________________________________
+#
+# region 6 : /enregistrement liste
+#______________________________________________________________________________
+async def test_liste_enregistrement():
+
+    numero_insertion = 1
+    user_data = users[numero_insertion]
+
+    login_response = await get_login_response(user_data)
+    jwt_token = get_token(login_response)
+    headers = get_headers(jwt_token)
+
+    # Envoie une requête GET pour récupérer la liste des utilisateurs
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            "http://127.0.0.1:8000/enregistrement", 
+            params = { "user_id" : numero_insertion },
+            headers=headers )
+
+    # Vérifie la réponse et les résultats attendus
+    if response.status_code == 200 :
+        print ("test_liste_enregistrement : OK")
+        print(response.json())
+    else : 
+        print ("test_liste_enregistrement : errors / ko")
 
 #______________________________________________________________________________
 #
@@ -247,6 +300,8 @@ async def all_tests() :
     tests.append(test_create_user_coach)
     tests.append(test_create_user_cyclist)
     tests.append(test_get_users)
+    tests.append(test_creation_enregistrement)
+    tests.append(test_liste_enregistrement)
 
     # Faire les requêtes HTTP
     print("_________________________________________________________")

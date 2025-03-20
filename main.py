@@ -9,8 +9,10 @@ app = FastAPI(
     description=API_DESCRIPTION )
 
 # Inclure les routes définies dans les fichiers séparés
-#app.include_router(auth.router, prefix="??", tags=["auth"])
+#app.include_router(auth.router, prefix="", tags=["Connection"])
+#app.include_router(auth.router,tags=["Communication breakdown, it's allways the same"])
 app.include_router(auth.router)
 app.include_router(user.router)
 app.include_router(coach.router)
 #app.include_router(cycliste.router)
+app.include_router(enregistrement.router)

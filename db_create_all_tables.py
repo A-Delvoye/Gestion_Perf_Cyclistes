@@ -78,13 +78,14 @@ with sqlite3.connect("db/gest_perf_cycl.db") as conn :
     cursor.execute(f"""
         CREATE TABLE IF NOT EXISTS Enregistrements (
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
+            id_utilisateur INTEGER NOT NULL,
             date DATETIME NOT NULL, 
             puissance_max REAL NOT NULL,
-            v02_max REAL NOT NULL,
+            vO2_max REAL NOT NULL,
             cadence_max REAL NOT NULL,
-            f_cardiaque REAL NOT NULL,
-            f_respiratoire REAL NOT NULL,
-            FOREIGN KEY (id) REFERENCES Utilisateurs(id) ON DELETE CASCADE
+            f_cardiaque_max REAL NOT NULL,
+            f_respiratoire_max REAL NOT NULL,
+            FOREIGN KEY (id_utilisateur) REFERENCES Utilisateurs(id) ON DELETE CASCADE
 
         );
         """)    
@@ -199,7 +200,8 @@ enregistrements_data = []
 for i in range(1, len(cyclists_data)):  # Pour chaque cycliste existant
     for j in range(2):  # 2 enregistrements par cycliste
         enregistrements_data.append((
-            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),  # Date actuelle
+            i+1,
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"),  # Date actuelle
             round(random.uniform(200, 500), 2),  # Puissance max (200-500 W)
             round(random.uniform(40, 80), 2),  # VO2 max (40-80 ml/kg/min)
             round(random.uniform(90, 120), 2),  # Cadence max (90-120 rpm)
@@ -211,8 +213,8 @@ with sqlite3.connect("db/gest_perf_cycl.db") as conn:
     cursor = conn.cursor()
 
     cursor.executemany("""
-        INSERT INTO Enregistrements (date, puissance_max, v02_max, cadence_max, f_cardiaque, f_respiratoire) 
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO Enregistrements (id_utilisateur, date, puissance_max, vO2_max, cadence_max, f_cardiaque_max, f_respiratoire_max) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     """, enregistrements_data)
 
     conn.commit()

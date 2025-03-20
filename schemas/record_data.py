@@ -4,15 +4,17 @@ from datetime import datetime
 
 #______________________________________________________________________________
 #
-# region Information sur un Cycliste 
+# region Information sur un Enregistrement 
 #______________________________________________________________________________
-class CyclistInfoData(BaseModel):
+class RecordInfoData(BaseModel):
     """
-    Cyclist information data 
+    Record information data 
     """
+    id: Optional[int] = None
     id_utilisateur : int
-    nom_cycliste : str
-    age : int
-    poids : float
-    taille : float
-    sexe : bool
+    date : datetime
+    puissance_max : float
+    vo2_max : float
+    cadence_max : float
+    f_cardiaque_max : float
+    f_respiratoire_max :  float
