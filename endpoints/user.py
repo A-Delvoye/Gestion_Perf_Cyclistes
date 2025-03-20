@@ -48,10 +48,9 @@ def create_user(
                 detail="Only an admin can create an admin")
 
     if creation_data.role not in [role.value for role in ApiRole] :
-        if db_user.role != ApiRole.admin.value :
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Impossible to create a user with role {creation_data.role} ")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Impossible to create a user with role {creation_data.role} ")
         
     db_user = UtilisateurDB(
         username = creation_data.username,

@@ -47,7 +47,8 @@ with sqlite3.connect("db/gest_perf_cycl.db") as conn :
             age INTEGER NOT NULL,
             poids REAL NOT NULL,
             taille REAL NOT NULL,
-            sexe TEXT NOT NULL
+            sexe TEXT NOT NULL,
+            FOREIGN KEY (id) REFERENCES utilisateurs(id) ON DELETE CASCADE
         );
         """)    
 
@@ -76,7 +77,8 @@ with sqlite3.connect("db/gest_perf_cycl.db") as conn :
             cadence_max REAL NOT NULL,
             f_cardiaque REAL NOT NULL,
             f_respiratoire REAL NOT NULL,
-            date DATETIME NOT NULL
+            FOREIGN KEY (id) REFERENCES utilisateurs(id) ON DELETE CASCADE
+
         );
         """)    
 
@@ -126,7 +128,7 @@ with sqlite3.connect("db/gest_perf_cycl.db") as conn :
     print(f"Utilisateur {admin_values[0]} créé succès !")
 
 
-# Création de cyclistes
+# Création de users
 from db.db_session import DB_Session
 from models.utilisateur_db import UtilisateurDB
 
@@ -153,3 +155,58 @@ for user in users :
     count +=1
 
 print(f"{count} UtilisateurDB ajoutés")
+
+#____________________________________________________________________
+# Populate cyclistes
+#____________________________________________________________________
+
+# Ajout de cyclistes fictifs
+cyclists_data = [
+    ("Julian Dupont", 28, 72.5, 1.78, "M"),
+    ("Tadej Pogacar", 25, 67.0, 1.76, "M"),
+    ("Jonas Vingegaard", 27, 65.0, 1.75, "M"),
+    ("Antoine D", 30, 150.0, 1.80, "F"),
+    ("Nicolas C", 30, 70.0, 1.79, "M")
+]
+
+with sqlite3.connect("db/gest_perf_cycl.db") as conn:
+    cursor = conn.cursor()
+    
+    cursor.executemany("""
+        INSERT INTO cyclists (nom, age, poids, taille, sexe) 
+        VALUES (?, ?, ?, ?, ?)
+    """, cyclists_data)
+
+    conn.commit()
+    print(f"{len(cyclists_data)} cyclistes ajoutés avec succès !")
+
+#____________________________________________________________________
+# Populate enregistrements
+#____________________________________________________________________
+
+from datetime import datetime
+import random
+
+# Génération de données d'enregistrement aléatoires
+enregistrements_data = []
+for i in range(1, len(cyclists_data)):  # Pour chaque cycliste existant
+    for j in range(2):  # 2 enregistrements par cycliste
+        enregistrements_data.append((
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),  # Date actuelle
+            round(random.uniform(200, 500), 2),  # Puissance max (200-500 W)
+            round(random.uniform(40, 80), 2),  # VO2 max (40-80 ml/kg/min)
+            round(random.uniform(90, 120), 2),  # Cadence max (90-120 rpm)
+            round(random.uniform(140, 190), 2),  # Fréquence cardiaque (140-190 bpm)
+            round(random.uniform(15, 40), 2)  # Fréquence respiratoire (15-40)
+        ))
+
+with sqlite3.connect("db/gest_perf_cycl.db") as conn:
+    cursor = conn.cursor()
+
+    cursor.executemany("""
+        INSERT INTO Enregistrements (date, puissance_max, v02_max, cadence_max, f_cardiaque, f_respiratoire) 
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, enregistrements_data)
+
+    conn.commit()
+    print(f"{len(enregistrements_data)} enregistrements ajoutés avec succès !")
