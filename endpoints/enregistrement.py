@@ -61,8 +61,8 @@ def create_record(
 #
 # region Liste des enregistrements
 #______________________________________________________________________________
-@router.get("/coach/users", response_model=List[RecordInfoData])
-def get_users(
+@router.get("/enregistrement", response_model=List[RecordInfoData])
+def get_enregistrement(
     user_id : int = 0,
     token : str  = Depends(record_scheme), 
     ) -> list[RecordInfoData]:

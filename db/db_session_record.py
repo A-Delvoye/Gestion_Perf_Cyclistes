@@ -72,7 +72,7 @@ class DB_Session_Record() :
         db_record = EnregistrementDB(
             id = int(row[0]), 
             id_utilisateur = int(row[1]), 
-            date = int(record_date), 
+            date = record_date, 
             puissance_max = float(row[3]), 
             vo2_max = float(row[4]), 
             cadence_max = float(row[5]), 

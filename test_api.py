@@ -196,7 +196,7 @@ async def test_get_users():
 
 #______________________________________________________________________________
 #
-# region 5 : /enregistrement création
+# region 6 : /enregistrement création
 #______________________________________________________________________________
 async def test_creation_enregistrement():
 
@@ -227,13 +227,13 @@ async def test_creation_enregistrement():
     # Vérifie la réponse et les résultats attendus
     if response.status_code == 200 :
         print ("test_enregistrement : OK")
-        print(response.json())
+        #print(response.json())
     else : 
         print ("test_enregistrement : errors / ko")
     
 #______________________________________________________________________________
 #
-# region 6 : /enregistrement liste
+# region 7 : /enregistrement liste
 #______________________________________________________________________________
 async def test_liste_enregistrement():
 
