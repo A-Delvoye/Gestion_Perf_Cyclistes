@@ -236,6 +236,60 @@ async def test_update_user():
 
 #______________________________________________________________________________
 #
+# region 6 /utilisateur delete
+#______________________________________________________________________________
+
+async def test_delete_user():
+    
+    admin_user = users[0]
+        
+    login_response = await get_login_response(admin_user)
+    jwt_token = get_token(login_response)
+    headers = get_headers(jwt_token)
+
+    # données de création de l'utilisateur 
+           
+    n = str(random.randint(100, 200))
+    initial_email = "deleting_user" +str(n) + ".fakemail@fakeprovider.com"
+    initial_username = "deleting_user"+ str(n)
+
+    # Données utilisateur à créer
+    create_data = UserCreateData(
+        email = initial_email,
+        username = initial_username, 
+        role = ApiRole.cycliste.value,
+        password= initial_username)
+    
+    # création d'utilisateur
+    creation_response = None
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            "http://127.0.0.1:8000/utilisateur", 
+            data = create_data.model_dump_json(),
+            headers = headers)
+        
+    # récupération de l'id
+    creation_response = response.json()
+    creation_id = creation_response["id"]
+
+    delete_id = creation_id
+        
+    # modification du même utilisateur
+    async with httpx.AsyncClient() as client:
+        request_url = f"http://127.0.0.1:8000/utilisateur/{delete_id}"
+        response = await client.delete(
+            request_url, 
+            headers = headers)
+    
+    # Vérifie la réponse et les résultats attendus
+    if response.status_code == 200 :
+        print ("test_delete_user : OK")
+        #print(response.json())
+    else : 
+        print ("test_delete_user : errors / ko")
+
+#______________________________________________________________________________
+#
 # region 7 : /utilisateur get
 #______________________________________________________________________________
 async def test_get_users():
@@ -298,12 +352,12 @@ async def test_creation_enregistrement():
     
 #______________________________________________________________________________
 #
-# region 11 : /enregistrement liste
+# region 11 : /enregistrement (get liste)
 #______________________________________________________________________________
 async def test_liste_enregistrement():
 
-    numero_insertion = 1
-    user_data = users[numero_insertion]
+    user_id = 1
+    user_data = users[user_id]
 
     login_response = await get_login_response(user_data)
     jwt_token = get_token(login_response)
@@ -311,7 +365,7 @@ async def test_liste_enregistrement():
 
     # Envoie une requête GET pour récupérer la liste des utilisateurs
     async with httpx.AsyncClient() as client:
-        request_url = f"http://127.0.0.1:8000/enregistrement/{numero_insertion}"
+        request_url = f"http://127.0.0.1:8000/enregistrement/{user_id}"
         response = await client.get(
             request_url,
             headers=headers )
@@ -369,9 +423,9 @@ async def all_tests() :
     tests.append(test_create_user_coach)
     tests.append(test_create_user_cyclist)
     tests.append(test_update_user)
-    #tests.append(test_delete_user)
-
+    tests.append(test_delete_user)
     tests.append(test_get_users)
+
     tests.append(test_creation_enregistrement)
     tests.append(test_liste_enregistrement)
 

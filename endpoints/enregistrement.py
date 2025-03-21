@@ -36,6 +36,9 @@ unauthorised_exception = HTTPException(
 def create_enregistrement(
     record_data: RecordInfoData, 
     token : str = Depends(record_scheme)) -> RecordInfoData:
+    """
+    DOCSTRING create_enregistrement
+    """
 
     if not is_valid_token(token) :
         raise unauthorised_exception
@@ -62,11 +65,13 @@ def create_enregistrement(
 # region Liste des enregistrements
 #______________________________________________________________________________
 @router.get("/enregistrement/{id_utilisateur}", response_model=List[RecordInfoData])
-def get_enregistrement(
+def get_enregistrement_list(
     id_utilisateur : int = 0,
     token : str  = Depends(record_scheme), 
     ) -> list[RecordInfoData]:
-
+    """
+    DOCSTRING get_enregistrement_list
+    """
     if not is_valid_token(token) :
         raise unauthorised_exception
     
