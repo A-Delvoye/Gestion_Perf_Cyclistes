@@ -22,24 +22,60 @@ Ce projet permet de gérer les performances des cyclistes via une API FastAPI av
 
 ## 📂 Structure du projet  
 
-```bash
-gest_perf_cycl/
-│── db/
-│   ├── gest_perf_cycl.db  # Base de données SQLite
-│── models/
-│   ├── utilisateur_db.py  # Modèle SQL des utilisateurs
-│   ├── cycliste_db.py  # Modèle SQL des cyclistes
-│   ├── enregistrement_db.py  # Modèle SQL des enregistrements
-│── routes/
-│   ├── cycliste.py  # Endpoints pour la gestion des cyclistes
-│   ├── enregistrement.py  # Endpoints pour la gestion des enregistrements
-│── core/
-│   ├── security.py  # Gestion des tokens et de l'authentification
-│   ├── password_tools.py  # Hashage des mots de passe
-│── main.py  # Point d'entrée de l'API
-│── requirements.txt  # Dépendances du projet
-│── README.md  # Documentation
-```
+# Structure du Projet - Gestion des Performances Cyclistes 🚴‍♂️
+
+## 📁 app
+Ce dossier contient le cœur de l'application, y compris l'API, la gestion de la base de données et les schémas de données.
+- `api/` : Contient les endpoints de l'API.
+- `db/` : Gestion de la base de données et scripts d'initialisation.
+- `schemas/` : Définitions des structures de données utilisées dans l'application.
+- `main.py` : Point d'entrée principal de l'application.
+
+## 📁 core
+Ce dossier contient les fonctionnalités de base et les outils nécessaires à l'application.
+- `config.py` : Configuration globale de l'application.
+- `password_tools.py` : Gestion des mots de passe et sécurité.
+- `user_role_tools.py` : Gestion des rôles utilisateur.
+
+## 📁 db
+Dossier contenant les sessions de base de données et la gestion des connexions.
+- `db_session.py` : Configuration des sessions de base de données.
+- `token_white_list.py` : Gestion des jetons valides.
+
+## 📁 endpoints
+Dossier regroupant les différentes routes de l'API.
+- `auth.py` : Gestion de l'authentification.
+- `coach.py` : Endpoints pour les coachs.
+- `cycliste.py` : Endpoints pour les cyclistes.
+- `enregistrement.py` : Enregistrement des performances.
+- `stats.py` : Calcul et affichage des statistiques.
+- `user.py` : Gestion des utilisateurs.
+
+## 📁 models
+Dossier contenant les modèles de base de données.
+- `cycliste_db.py` : Modèle pour les cyclistes.
+- `enregistrement_db.py` : Modèle pour les enregistrements.
+- `utilisateur_db.py` : Modèle pour les utilisateurs.
+
+## 📁 schemas
+Dossier définissant les schémas de validation des données pour l'API.
+- `auth_data.py` : Schéma pour les données d'authentification.
+- `cyclist_data.py` : Schéma pour les données des cyclistes.
+- `record_data.py` : Schéma pour les enregistrements.
+- `user_data.py` : Schéma pour les utilisateurs.
+
+## 📁 utils
+Dossier contenant des outils et utilitaires réutilisables.
+- `db_utils.py` : Fonctions utilitaires pour la base de données.
+- `jwt_handlers.py` : Gestion des jetons JWT.
+- `lifespan_handler.py` : Gestion du cycle de vie de l'application.
+
+## 📄 Fichiers racine
+- `main.py` : Point d'entrée principal.
+- `db_create_all_tables.py` : Script de création des tables.
+- `README.md` : Documentation du projet.
+- `requirements.txt` : Dépendances du projet.
+- `test_api.py` : Tests de l'API.
 
 ---
 
@@ -124,12 +160,19 @@ Le Modele Physique des Données (MPD) est consultable sur le fichier MPD_Cycling
 | PUT     | `/update_cycliste/{id}`       | Modifier les informations d’un cycliste |
 | DELETE  | `/delete_cycliste/{id}`       | Supprimer un cycliste              |
 
-### 📊 Enregistrements  
+### 🏁 Enregistrements  
 
 | Méthode | Endpoint                      | Description                         |
 |---------|--------------------------------|-------------------------------------|
 | POST    | `/enregistrement`             | Ajouter un enregistrement          |
 | GET     | `/enregistrement?user_id=1`   | Récupérer les enregistrements d’un utilisateur |
+
+### 📊 Statistiques
+
+| Méthode | Endpoint                      | Description                         |
+|---------|--------------------------------|-------------------------------------|
+| POST    | `/stats/puissance_max_globale`             | Afficher la puissance max sur l'ensemble des cyclistes          |
+| GET     | `/puissance_max_cycliste/id`   | Affiche la puissance max d'un cycliste donnée (id) |
 
 ---
 
@@ -150,6 +193,7 @@ Authorization: Bearer <token>
 - 🔄 Implémentation d’un système de pagination pour les enregistrements.  
 - 📈 Ajout de statistiques détaillées et visualisation des performances.  
 - ☁️ Hébergement de l’API sur Azure avec Docker.  
+- 🚀 Ajout d'un outil de visualisation Streamlit pour l'application et PowerBI pour les statistiques.
 
 ---
 📢 Contact & Support
