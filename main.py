@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from endpoints import auth, user, coach, cycliste, enregistrement
+from endpoints import auth, coach, cycliste, enregistrement, utilisateur
 from core.config import API_NAME, API_DESCRIPTION
 from utils.lifespan_handler import token_cleaner
 
@@ -11,10 +11,10 @@ app = FastAPI(
 # Inclure les routes définies dans les fichiers séparés
 app.include_router(auth.router, prefix="", tags=["auth"])
 
-app.include_router(user.router)
-app.include_router(coach.router)
+app.include_router(utilisateur.router, prefix="", tags=["utilisateur"])
+#app.include_router(coach.router)
 app.include_router(cycliste.router, prefix="", tags=["get_cyclistes"])
-app.include_router(enregistrement.router)
+app.include_router(enregistrement.router, prefix="", tags=["enregistrement"])
 #app.include_router(stats.router)
 
 

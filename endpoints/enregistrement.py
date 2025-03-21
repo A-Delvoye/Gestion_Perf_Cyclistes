@@ -33,9 +33,12 @@ unauthorised_exception = HTTPException(
 # region Création d'un Enregistrement 
 #______________________________________________________________________________
 @router.post("/enregistrement", response_model=RecordInfoData)
-def create_record(
+def create_enregistrement(
     record_data: RecordInfoData, 
     token : str = Depends(record_scheme)) -> RecordInfoData:
+    """
+    DOCSTRING create_enregistrement
+    """
 
     if not is_valid_token(token) :
         raise unauthorised_exception
@@ -61,23 +64,24 @@ def create_record(
 #
 # region Liste des enregistrements
 #______________________________________________________________________________
-@router.get("/enregistrement", response_model=List[RecordInfoData])
-def get_enregistrement(
-    user_id : int = 0,
+@router.get("/enregistrement/{id_utilisateur}", response_model=List[RecordInfoData])
+def get_enregistrement_list(
+    id_utilisateur : int = 0,
     token : str  = Depends(record_scheme), 
     ) -> list[RecordInfoData]:
-
+    """
+    DOCSTRING get_enregistrement_list
+    """
     if not is_valid_token(token) :
         raise unauthorised_exception
     
     payload = verify_token(token)
     db_user = get_current_user(payload)
-    if user_id ==0 : 
-        user_id = db_user.id
-
+    if id_utilisateur ==0 : 
+        id_utilisateur = db_user.id
 
     db_session_record = DB_Session_Record()
-    db_records : list[EnregistrementDB] = db_session_record.get_record_list(user_id)
+    db_records : list[EnregistrementDB] = db_session_record.get_record_list(id_utilisateur)
 
     record_list = []
     for db_record in db_records :

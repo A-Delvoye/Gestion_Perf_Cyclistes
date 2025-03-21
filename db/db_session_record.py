@@ -44,6 +44,7 @@ class DB_Session_Record() :
         return True
     
     def get_record_list(self, user_id : int) -> list[EnregistrementDB] :
+        record_list = list()
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
 
@@ -53,14 +54,10 @@ class DB_Session_Record() :
 
             cursor.execute(statement)
             rows = cursor.fetchall()
-
-            if len(rows) == 0:
-                return None
-            record_list = list()
             for row in rows:
                 record_list.append(self.load_record(row))
 
-            record_list : list[EnregistrementDB] = record_list
+        record_list : list[EnregistrementDB] = record_list
 
         return record_list   
 

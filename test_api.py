@@ -11,7 +11,7 @@ import random
 from db.db_session import DB_Session
 from models.utilisateur_db import UtilisateurDB
 from schemas.auth_data import AuthData
-from schemas.user_data import UserInfoData, UserCreationData
+from schemas.user_data import UserInfoData, UserCreateData, UserUpdateData
 from schemas.record_data import RecordInfoData
 
 from core.api_roles import ApiRole
@@ -20,32 +20,32 @@ from core.api_roles import ApiRole
 from main import app
 
 users = [
-    UserCreationData( 
+    UserCreateData( 
         username = "admin", 
         email = "admin@admin.com", 
         password ="admin", 
         role = ApiRole.admin.value),
-    UserCreationData( 
+    UserCreateData( 
         username ="Julian Dupont", 
         email =  "jul@yan.com", 
         password ="Julian", 
         role = ApiRole.cycliste.value),
-    UserCreationData( 
+    UserCreateData( 
         username ="Tadej", 
         email =  "tad@ej.com", 
         password ="Tadej", 
         role = ApiRole.cycliste.value),
-    UserCreationData( 
+    UserCreateData( 
         username ="Jonas", 
         email =  "jon@as.com", 
         password ="Jonas",
         role = ApiRole.cycliste.value),
-    UserCreationData( 
+    UserCreateData( 
         username ="Antoine", 
         email =  "ant@oine.com", 
         password ="Antoine", 
         role = ApiRole.cycliste.value),
-    UserCreationData( 
+    UserCreateData( 
         username ="Nicolas", 
         email =  "nic@olas.com", 
         password ="Nicolas", 
@@ -68,7 +68,7 @@ async def test_login():
         print ("test_login : errors / ko")
         
 
-async def get_login_response(user_data : UserCreationData) :
+async def get_login_response(user_data : UserCreateData) :
     
     auth_data = AuthData(
         username=user_data.username, 
@@ -119,10 +119,9 @@ async def test_logout():
 
 #______________________________________________________________________________
 #
-# region 3 et 4 /coach/users  create user
+# region 3 et 4 /utilisateur create
 #______________________________________________________________________________
-
-async def test_create_user(role : ApiRole):
+async def test_create_user(role : ApiRole) :
     
     current_user_data = None
     match role : 
@@ -135,12 +134,12 @@ async def test_create_user(role : ApiRole):
     
     prefix = "user" if role == ApiRole.cycliste else "coach"
            
-    n = str(random.randint(3, 99))
+    n = str(random.randint(1, 1000))
     proto_email = prefix +str(n) + ".fakemail@fakeprovider.com"
     proto_username = prefix+ str(n)
 
     # Données utilisateur à envoyer
-    user_data = UserCreationData(
+    user_data = UserCreateData(
         email = proto_email,
         username = proto_username, 
         role = role,
@@ -150,7 +149,7 @@ async def test_create_user(role : ApiRole):
     # Simuler l'appel à la route de création d'utilisateur
     async with httpx.AsyncClient() as client:
         response = await client.post(
-            "http://127.0.0.1:8000/user", 
+            "http://127.0.0.1:8000/utilisateur", 
             data = user_data.model_dump_json(),
             headers = headers)
 
@@ -171,7 +170,127 @@ async def test_create_user_cyclist():
 
 #______________________________________________________________________________
 #
-# region 5 : coach/users
+# region 5 /utilisateur update
+#______________________________________________________________________________
+
+async def test_update_user():
+    
+    admin_user = users[0]
+        
+    login_response = await get_login_response(admin_user)
+    jwt_token = get_token(login_response)
+    headers = get_headers(jwt_token)
+
+    # données de création de l'utilisateur 
+           
+    n = str(random.randint(100, 200))
+    initial_email = "updating_user" +str(n) + ".fakemail@fakeprovider.com"
+    final_email = "updated_user" +str(n) + ".fakemail@fakeprovider.com"
+    initial_username = "updating_user"+ str(n)
+    final_username = "updated_user"+ str(n)
+    
+    # Données utilisateur à créer
+    create_data = UserCreateData(
+        email = initial_email,
+        username = initial_username, 
+        role = ApiRole.cycliste.value,
+        password= initial_username)
+    
+    # Données utilisateur modifiées
+    update_data = UserUpdateData(
+        email = final_email,
+        username = final_username, 
+        role = ApiRole.cycliste.value,
+        old_password= initial_username,
+        new_password= final_username)
+    
+    # création d'utilisateur
+    creation_response = None
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            "http://127.0.0.1:8000/utilisateur", 
+            data = create_data.model_dump_json(),
+            headers = headers)
+        
+    # récupération de l'id
+    creation_response = response.json()
+    creation_id = creation_response["id"]
+
+    update_data.id = creation_id
+        
+    # modification du même utilisateur
+    async with httpx.AsyncClient() as client:
+        response = await client.put(
+            "http://127.0.0.1:8000/utilisateur", 
+            data = update_data.model_dump_json(),
+            headers = headers)
+
+    # Vérifications
+    if response.status_code == 200 :
+        print (f"test_update_user : OK")
+        #print(response.json())
+    else : 
+        print (f"test_update_user : errors / ko")
+
+    #assert response.json()["email"] == user_data["email"]
+
+#______________________________________________________________________________
+#
+# region 6 /utilisateur delete
+#______________________________________________________________________________
+
+async def test_delete_user():
+    
+    admin_user = users[0]
+        
+    login_response = await get_login_response(admin_user)
+    jwt_token = get_token(login_response)
+    headers = get_headers(jwt_token)
+
+    # données de création de l'utilisateur 
+           
+    n = str(random.randint(100, 200))
+    initial_email = "deleting_user" +str(n) + ".fakemail@fakeprovider.com"
+    initial_username = "deleting_user"+ str(n)
+
+    # Données utilisateur à créer
+    create_data = UserCreateData(
+        email = initial_email,
+        username = initial_username, 
+        role = ApiRole.cycliste.value,
+        password= initial_username)
+    
+    # création d'utilisateur
+    creation_response = None
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            "http://127.0.0.1:8000/utilisateur", 
+            data = create_data.model_dump_json(),
+            headers = headers)
+        
+    # récupération de l'id
+    creation_response = response.json()
+    creation_id = creation_response["id"]
+
+    delete_id = creation_id
+        
+    # modification du même utilisateur
+    async with httpx.AsyncClient() as client:
+        request_url = f"http://127.0.0.1:8000/utilisateur/{delete_id}"
+        response = await client.delete(
+            request_url, 
+            headers = headers)
+    
+    # Vérifie la réponse et les résultats attendus
+    if response.status_code == 200 :
+        print ("test_delete_user : OK")
+        #print(response.json())
+    else : 
+        print ("test_delete_user : errors / ko")
+
+#______________________________________________________________________________
+#
+# region 7 : /utilisateur get
 #______________________________________________________________________________
 async def test_get_users():
 
@@ -184,7 +303,7 @@ async def test_get_users():
     # Envoie une requête GET pour récupérer la liste des utilisateurs
     async with httpx.AsyncClient() as client:
         response = await client.get(
-            "http://127.0.0.1:8000/coach/users", 
+            "http://127.0.0.1:8000/utilisateur", 
             headers=headers )
 
     # Vérifie la réponse et les résultats attendus
@@ -196,7 +315,7 @@ async def test_get_users():
 
 #______________________________________________________________________________
 #
-# region 6 : /enregistrement création
+# region 8 : /enregistrement création
 #______________________________________________________________________________
 async def test_creation_enregistrement():
 
@@ -233,12 +352,12 @@ async def test_creation_enregistrement():
     
 #______________________________________________________________________________
 #
-# region 7 : /enregistrement liste
+# region 11 : /enregistrement (get liste)
 #______________________________________________________________________________
 async def test_liste_enregistrement():
 
-    numero_insertion = 1
-    user_data = users[numero_insertion]
+    user_id = 1
+    user_data = users[user_id]
 
     login_response = await get_login_response(user_data)
     jwt_token = get_token(login_response)
@@ -246,15 +365,15 @@ async def test_liste_enregistrement():
 
     # Envoie une requête GET pour récupérer la liste des utilisateurs
     async with httpx.AsyncClient() as client:
+        request_url = f"http://127.0.0.1:8000/enregistrement/{user_id}"
         response = await client.get(
-            "http://127.0.0.1:8000/enregistrement", 
-            params = { "user_id" : numero_insertion },
+            request_url,
             headers=headers )
 
     # Vérifie la réponse et les résultats attendus
     if response.status_code == 200 :
         print ("test_liste_enregistrement : OK")
-        print(response.json())
+        #print(response.json())
     else : 
         print ("test_liste_enregistrement : errors / ko")
 
@@ -265,9 +384,12 @@ async def test_liste_enregistrement():
 async def start_uvicorn():
     config = uvicorn.Config("main:app", host="127.0.0.1", port=8000, reload=True)
     server = uvicorn.Server(config)
-    
-    # Démarrer le serveur
-    await server.serve()
+    try:
+        # Démarrer le serveur
+        await server.serve()
+
+    except Exception as ex :
+        pass
 
 #______________________________________________________________________________
 #
@@ -297,9 +419,13 @@ async def all_tests() :
     tests = []
     tests.append(test_login)
     tests.append(test_logout)
+
     tests.append(test_create_user_coach)
     tests.append(test_create_user_cyclist)
+    tests.append(test_update_user)
+    tests.append(test_delete_user)
     tests.append(test_get_users)
+
     tests.append(test_creation_enregistrement)
     tests.append(test_liste_enregistrement)
 

@@ -2,7 +2,7 @@ import sqlite3
 from models.utilisateur_db import UtilisateurDB
 from models.jeton_valide_db import JetonValideDB
 from datetime import datetime, timezone
-from typing import List
+from typing import Optional, List
 
 class DB_Session() :
     def __init__(self) :
@@ -16,24 +16,32 @@ class DB_Session() :
     # region Utilisateur
     #__________________________________________________________________________
 
-    def insert_user(self, db_user: UtilisateurDB) :
+    def create_user(self, creating_user: UtilisateurDB) -> bool:
+        commit_as_been_done = False
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
 
             statement = f"INSERT INTO {self.user_tablename} (username, email, password_hash, role)"
             statement += " VALUES (?, ?, ?, ?);"
-            cursor.execute(statement, (db_user.username,  db_user.email, db_user.password_hash, db_user.role))
 
-            number_of_lines = cursor.rowcount     
+            creating_values = (creating_user.username,  creating_user.email, creating_user.password_hash, creating_user.role)
+
+            cursor.execute(statement, creating_values)
 
             connection.commit()
+            commit_as_been_done = True
 
-        return True
+        return commit_as_been_done
 
-    def get_user_by_id(self, user_id: int) -> UtilisateurDB:
+    def get_user_by_id(self, user_id: int) -> Optional[UtilisateurDB]:
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
-            cursor.execute(f"SELECT id, username, email, password_hash, role FROM {self.user_tablename} WHERE id = {user_id}")
+
+            statement = "SELECT id, username, email, password_hash, role"
+            statement += f" FROM {self.user_tablename}"
+            statement += f" WHERE id = {user_id}"
+
+            cursor.execute(statement)
             result = cursor.fetchone()
 
             if result :
@@ -64,7 +72,7 @@ class DB_Session() :
 
         return user_list 
     
-    def get_user_by_name(self, username : str) -> UtilisateurDB:
+    def get_user_by_name(self, username : str) -> Optional[UtilisateurDB]:
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
 
@@ -81,6 +89,43 @@ class DB_Session() :
             
         return None
     
+    def update_user(self, updating_user : UtilisateurDB) -> bool:
+        commit_as_been_done = False
+        with sqlite3.connect(self.database_path) as connection : 
+
+            cursor : sqlite3.Cursor = connection.cursor()
+
+            statement  = f"UPDATE {self.user_tablename}"
+            statement += f" SET username = '{updating_user.username}',"
+            statement += f" email = '{updating_user.email}',"
+            statement += f" password_hash = '{updating_user.password_hash}',"
+            statement += f" role = '{updating_user.role}'"
+            statement += f" WHERE id = {updating_user.id}"
+
+            #print(f"!!!!!!!!!!!!!! DEBUG - Statement : {statement}")
+    
+            cursor.execute(statement)
+            connection.commit()
+
+            commit_as_been_done = True
+            
+        return commit_as_been_done
+    
+    def delete_user(self, user_id : str) -> bool:
+        commit_as_been_done = False
+        with sqlite3.connect(self.database_path) as connection : 
+            cursor : sqlite3.Cursor = connection.cursor()
+
+            statement  = f"DELETE FROM {self.user_tablename}"
+            statement +=f" WHERE id = {user_id}"
+    
+            cursor.execute(statement)
+            connection.commit()
+
+            commit_as_been_done = True
+            
+        return commit_as_been_done
+    
     def load_user(self, row) -> UtilisateurDB :
         db_user = UtilisateurDB(
             id = int(row[0]),
@@ -96,8 +141,8 @@ class DB_Session() :
     # region Jeton 
     #__________________________________________________________________________
 
-    
-    def insert_token(self, db_token : JetonValideDB) :
+    def insert_token(self, db_token : JetonValideDB) ->bool :
+        commit_as_been_done = False
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
 
@@ -108,10 +153,12 @@ class DB_Session() :
             cursor.execute(statement, (date_str,  db_token.jeton))
             rows = cursor.fetchall()
 
+            connection.commit()
+            commit_as_been_done = True
 
-        return True
+        return commit_as_been_done
     
-    def get_db_token(self, token : str) -> JetonValideDB:
+    def get_db_token(self, token : str) -> Optional[JetonValideDB]:
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
             
@@ -137,17 +184,22 @@ class DB_Session() :
         )
         return db_token
     
-    def delete_token(self, db_token : JetonValideDB):
+    def delete_token(self, db_token : JetonValideDB) -> bool:
+        commit_as_been_done = False
         with sqlite3.connect(self.database_path) as connection : 
+
             cursor : sqlite3.Cursor = connection.cursor()
 
             statement  = f"DELETE FROM {self.token_tablename}"
             statement +=f" WHERE id = {db_token.id}"
             cursor.execute(statement)
 
-        return True
+            commit_as_been_done = True
+
+        return commit_as_been_done
     
-    def delete_invalid_tokens(self) -> int :
+    def delete_invalid_tokens(self) -> bool :
+        token_list = list()
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
 
@@ -158,20 +210,19 @@ class DB_Session() :
             rows = cursor.fetchall()
 
             if len(rows) == 0:
-                return None
+                return False
 
-            token_list = list()
             for row in rows:
                 token_list.append(self.load_token(row))
 
-            token_list : List[JetonValideDB] = token_list
+        token_list : List[JetonValideDB] = token_list
 
-            now = datetime.now(timezone.utc)
+        now = datetime.now(timezone.utc)
 
-            for db_token in token_list :
-                expiration = db_token.expiration.replace(tzinfo=timezone.utc)
-                if now > expiration :
-                    self.delete_token(db_token)
+        for db_token in token_list :
+            expiration = db_token.expiration.replace(tzinfo=timezone.utc)
+            if now > expiration :
+                self.delete_token(db_token)
 
         return True 
     
