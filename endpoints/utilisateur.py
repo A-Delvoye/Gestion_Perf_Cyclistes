@@ -35,7 +35,22 @@ def create_utilisateur(
     creation_data: UserCreateData, 
     token : str = Depends(utilisateur_scheme)) -> UserInfoData:
     """
-    DOCSTRING de create_utilisateur
+    Crée un nouvel utilisateur dans la base de données.
+
+    Args:
+        creation_data (UserCreateData): Les informations nécessaires pour créer un utilisateur 
+            (nom d'utilisateur, email, mot de passe et rôle).
+        token (str): Jeton d'authentification requis pour valider l'opération.
+
+    Returns:
+        UserInfoData: Les informations de l'utilisateur nouvellement créé (id, username, email, rôle).
+
+    Raises:
+        HTTPException 401: Si le token est invalide ou expiré.
+        HTTPException 401: Si un utilisateur avec le même nom existe déjà.
+        HTTPException 401: Si un utilisateur non-admin tente de créer un admin.
+        HTTPException 403: Si le rôle fourni n'est pas valide.
+        HTTPException 404: Si l'utilisateur n'a pas pu être récupéré après sa création.
     """
 
     if not is_valid_token(token) :
@@ -94,7 +109,23 @@ def update_utilisateur(
     update_data: UserUpdateData, 
     token : str = Depends(utilisateur_scheme)) -> UserInfoData:
     """
-    DOCSTRING de update_utilisateur
+    Met à jour les informations d'un utilisateur existant.
+
+    Args:
+        update_data (UserUpdateData): Données mises à jour de l'utilisateur, 
+            incluant l'ID, le nom d'utilisateur, l'email, le nouveau mot de passe, 
+            l'ancien mot de passe (si applicable) et le rôle.
+        token (str): Jeton d'authentification requis pour valider l'opération.
+
+    Returns:
+        UserInfoData: Les informations mises à jour de l'utilisateur (id, username, email, rôle).
+
+    Raises:
+        HTTPException 401: Si le token est invalide ou expiré.
+        HTTPException 401: Si l'ancien mot de passe ne correspond pas pour un utilisateur non-admin.
+        HTTPException 401: Si un utilisateur non-admin tente d'attribuer le rôle admin.
+        HTTPException 403: Si le rôle fourni n'est pas valide.
+        HTTPException 404: Si l'utilisateur à mettre à jour n'est pas trouvé.
     """
 
     if not is_valid_token(token) :
@@ -162,7 +193,20 @@ def delete_utilisateur(
     id_utilisateur : int, 
     token : str = Depends(utilisateur_scheme)) -> UserInfoData:
     """
-    DOCSTRING de delete_utilisateur
+    Supprime un utilisateur de la base de données.
+
+    Args:
+        id_utilisateur (int): L'identifiant de l'utilisateur à supprimer.
+        token (str): Jeton d'authentification requis pour valider l'opération.
+
+    Returns:
+        UserInfoData: Les informations de l'utilisateur effectuant la suppression (email, username, rôle).
+
+    Raises:
+        HTTPException 401: Si le token est invalide ou expiré.
+        HTTPException 401: Si un utilisateur non-admin tente de supprimer un admin.
+        HTTPException 401: Si l'utilisateur n'a pas été supprimé correctement.
+        HTTPException 404: Si l'utilisateur à supprimer n'est pas trouvé.
     """
 
     if not is_valid_token(token) :
@@ -204,7 +248,17 @@ def get_utilisateurs(
     token : str  = Depends(utilisateur_scheme), 
     ) -> list[UserInfoData]:
     """
-    DOCSTRING de get_utilisateurs
+    Récupère la liste de tous les utilisateurs.
+
+    Args:
+        token (str): Jeton d'authentification requis pour valider l'opération.
+
+    Returns:
+        list[UserInfoData]: Une liste contenant les informations de tous les utilisateurs 
+            (nom d'utilisateur, email, rôle).
+
+    Raises:
+        HTTPException 401: Si le token est invalide ou expiré.
     """
 
     if not is_valid_token(token) :

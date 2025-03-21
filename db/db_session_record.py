@@ -2,10 +2,11 @@ import sqlite3
 from models.enregistrement_db import EnregistrementDB
 from models.jeton_valide_db import JetonValideDB
 from datetime import datetime, timezone
+from core.config import DB_NAME
 
 class DB_Session_Record() :
     def __init__(self) :
-        self.database_path  = "db/gest_perf_cycl.db"
+        self.database_path  = DB_NAME
         self.record_tablename = "enregistrements"
         self.date_format_string = "%Y-%m-%d %H:%M:%S.%f"
 

@@ -1,11 +1,13 @@
 import sqlite3
+from core.config import DB_NAME
+
 
 #____________________________________________________________________
 # region users
 #____________________________________________________________________
 
 # Connexion à la base de données (créée si elle n'existe pas)
-with sqlite3.connect("db/gest_perf_cycl.db") as conn :
+with sqlite3.connect(DB_NAME) as conn :
     cursor = conn.cursor()
 
     # Activer les foreign keys
@@ -33,7 +35,7 @@ with sqlite3.connect("db/gest_perf_cycl.db") as conn :
 #____________________________________________________________________
 # region cyclistes
 #____________________________________________________________________
-with sqlite3.connect("db/gest_perf_cycl.db") as conn :
+with sqlite3.connect(DB_NAME) as conn :
     cursor = conn.cursor()
     # Activer les foreign keys
     cursor.execute("PRAGMA foreign_keys = ON;")
@@ -64,7 +66,7 @@ with sqlite3.connect("db/gest_perf_cycl.db") as conn :
 # region enregistrements
 #____________________________________________________________________
 
-with sqlite3.connect("db/gest_perf_cycl.db") as conn :
+with sqlite3.connect(DB_NAME) as conn :
     cursor = conn.cursor()
     # Activer les foreign keys
     cursor.execute("PRAGMA foreign_keys = ON;")
@@ -120,7 +122,7 @@ with sqlite3.connect("db/gest_perf_cycl.db") as conn :
 
 # Création d'un admin (= coach)
 from core.password_tools import get_password_hash
-with sqlite3.connect("db/gest_perf_cycl.db") as conn :
+with sqlite3.connect(DB_NAME) as conn :
     cursor = conn.cursor()
 
     password_hash = get_password_hash("admin")
@@ -177,7 +179,7 @@ cyclists_data = [
     ("Nicolas C", 30, 70.0, 1.79, "M")
 ]
 
-with sqlite3.connect("db/gest_perf_cycl.db") as conn:
+with sqlite3.connect(DB_NAME) as conn:
     cursor = conn.cursor()
     
     cursor.executemany("""
@@ -224,7 +226,7 @@ for i in range(1, len(cyclists_data)):  # Pour chaque cycliste existant
             round(random.uniform(15, 40), 2)  # Fréquence respiratoire (15-40)
         ))
 
-with sqlite3.connect("db/gest_perf_cycl.db") as conn:
+with sqlite3.connect(DB_NAME) as conn:
     cursor = conn.cursor()
 
     cursor.executemany("""

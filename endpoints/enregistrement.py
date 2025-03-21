@@ -37,7 +37,24 @@ def create_enregistrement(
     record_data: RecordInfoData, 
     token : str = Depends(record_scheme)) -> RecordInfoData:
     """
-    DOCSTRING create_enregistrement
+    Crée un nouvel enregistrement de performances pour un utilisateur.
+
+    Args:
+        record_data (RecordInfoData): Données de l'enregistrement à créer, incluant :
+            - id_utilisateur : Identifiant de l'utilisateur associé
+            - date : Date de l'enregistrement
+            - puissance_max : Puissance maximale atteinte
+            - vo2_max : VO2 max mesuré
+            - cadence_max : Cadence maximale atteinte
+            - f_cardiaque_max : Fréquence cardiaque maximale
+            - f_respiratoire_max : Fréquence respiratoire maximale
+        token (str): Jeton d'authentification requis pour valider l'opération.
+
+    Returns:
+        RecordInfoData: L'enregistrement créé avec les mêmes données que celles fournies.
+
+    Raises:
+        HTTPException 401: Si le token est invalide ou expiré.
     """
 
     if not is_valid_token(token) :
@@ -70,7 +87,26 @@ def get_enregistrement_list(
     token : str  = Depends(record_scheme), 
     ) -> list[RecordInfoData]:
     """
-    DOCSTRING get_enregistrement_list
+    Récupère la liste des enregistrements d'un utilisateur.
+
+    Args:
+        id_utilisateur (int, optional): L'identifiant de l'utilisateur dont on veut récupérer les enregistrements.
+            Si 0, récupère les enregistrements de l'utilisateur authentifié. Par défaut à 0.
+        token (str): Jeton d'authentification requis pour valider l'opération.
+
+    Returns:
+        list[RecordInfoData]: Une liste contenant les enregistrements de l'utilisateur, avec les informations suivantes :
+            - id : Identifiant de l'enregistrement
+            - id_utilisateur : Identifiant de l'utilisateur associé
+            - date : Date de l'enregistrement
+            - puissance_max : Puissance maximale atteinte
+            - vo2_max : VO2 max mesuré
+            - cadence_max : Cadence maximale atteinte
+            - f_cardiaque_max : Fréquence cardiaque maximale
+            - f_respiratoire_max : Fréquence respiratoire maximale
+
+    Raises:
+        HTTPException 401: Si le token est invalide ou expiré.
     """
     if not is_valid_token(token) :
         raise unauthorised_exception

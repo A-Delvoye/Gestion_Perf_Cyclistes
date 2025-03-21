@@ -3,10 +3,11 @@ from models.utilisateur_db import UtilisateurDB
 from models.jeton_valide_db import JetonValideDB
 from datetime import datetime, timezone
 from typing import Optional, List
+from core.config import DB_NAME
 
 class DB_Session() :
     def __init__(self) :
-        self.database_path  = "db/gest_perf_cycl.db"
+        self.database_path  = DB_NAME
         self.user_tablename = "utilisateurs"
         self.token_tablename = "jetons_valides"
         self.date_format_string = "%Y-%m-%d %H:%M:%S.%f"
