@@ -160,7 +160,7 @@ Authorization: Bearer <token>
 - [Nicolas Cassonnet](https://github.com/NicoCasso)
 
 🌐 Projet : 
-[Gestion_Perf_Cyclistes]
+Gestion_Perf_Cyclistes :
 (https://github.com/A-Delvoye/Gestion_Perf_Cyclistes)
 
 
