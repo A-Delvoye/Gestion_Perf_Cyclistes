@@ -34,6 +34,13 @@ unauthorised_exception = HTTPException(
 def get_users(
     token : str  = Depends(cyclist_list_scheme), 
     ) -> list[UserInfoData]:
+    """
+    Récupère la liste des utilisateurs pour un coach.
+
+    :param token: Jeton d'authentification OAuth2 récupéré via Depends.
+    :raises HTTPException: Si le token est invalide.
+    :return: Liste des utilisateurs sous forme d'objets UserInfoData.
+    """
 
     if not is_valid_token(token) :
         raise unauthorised_exception

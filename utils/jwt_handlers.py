@@ -8,6 +8,13 @@ from core.config import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
 from schemas.auth_data import Token
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> tuple[str, datetime]:
+    """
+    Crée un token d'accès JWT.
+
+    :param data: Données à inclure dans le token.
+    :param expires_delta: Durée de validité du token (optionnelle).
+    :return: Tuple contenant la date d'expiration et le token encodé.
+    """
     to_encode = data.copy()
 
     if expires_delta:
@@ -22,8 +29,16 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 
 def verify_token(token: str) :
     """
+    Vérifie la validité d'un token JWT.
+
+    :param token: Token JWT à vérifier.
+    :raises HTTPException: Si le token est invalide ou expiré.
     raise HTTP_401_UNAUTHORIZED Exception
+
+    :return: Le payload décodé du token.
+
     """
+    
     credentials_exception = HTTPException(
         status_code = status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",

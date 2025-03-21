@@ -35,6 +35,12 @@ unauthorised_exception = HTTPException(
 
 @router.get("/get_cycliste")
 def get_cyclist_by_id(cycliste_id: int):
+    """
+    Récupère les informations d'un cycliste à partir de son ID.
+    
+    :param cycliste_id: Identifiant unique du cycliste.
+    :return: Dictionnaire contenant les informations du cycliste.
+    """
  
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -53,6 +59,13 @@ def get_cyclist_by_id(cycliste_id: int):
 #______________________________________________________________________________
 @router.put("/update_cycliste/{cycliste_id}")
 def update_cycliste(cycliste_id: int, cycliste_data: CyclisteUpdate):
+    """
+    Met à jour les informations d'un cycliste existant.
+    
+    :param cycliste_id: Identifiant unique du cycliste.
+    :param cycliste_data: Données mises à jour du cycliste.
+    :return: Message confirmant la mise à jour du cycliste.
+    """
     conn = get_db_connection()
     cursor = conn.cursor()
     
@@ -83,6 +96,12 @@ def update_cycliste(cycliste_id: int, cycliste_data: CyclisteUpdate):
 #______________________________________________________________________________
 @router.post("/create_cycliste")
 def create_cycliste(cycliste_data: CyclisteCreate):
+    """
+    Crée un nouveau cycliste dans la base de données.
+    
+    :param cycliste_data: Données du cycliste à ajouter.
+    :return: Message de confirmation et ID du cycliste créé.
+    """
     conn = get_db_connection()
     cursor = conn.cursor()
  # Insérer le cycliste dans la base de données
@@ -107,6 +126,12 @@ def create_cycliste(cycliste_data: CyclisteCreate):
 
 @router.delete("/delete_cycliste/{cycliste_id}")
 def delete_cycliste(cycliste_id: int):
+    """
+    Supprime un cycliste de la base de données.
+    
+    :param cycliste_id: Identifiant unique du cycliste à supprimer.
+    :return: Message confirmant la suppression du cycliste.
+    """
     conn = get_db_connection()
     cursor = conn.cursor()
     

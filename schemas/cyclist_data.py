@@ -17,6 +17,9 @@ class CyclistInfoData(BaseModel):
     utilisateur_id : int
 
 class CyclisteUpdate(BaseModel):
+    """
+    Cyclist update information data 
+    """
     nom: str
     age: int
     poids: float
@@ -24,6 +27,9 @@ class CyclisteUpdate(BaseModel):
     sexe: str
 
 class CyclisteCreate(BaseModel):
+    """
+    Cyclist create information data 
+    """
     nom: str
     age: int
     poids: float
