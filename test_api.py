@@ -150,7 +150,7 @@ async def test_create_user(role : ApiRole):
     # Simuler l'appel à la route de création d'utilisateur
     async with httpx.AsyncClient() as client:
         response = await client.post(
-            "http://127.0.0.1:8000/user", 
+            "http://127.0.0.1:8000/utilisateur", 
             data = user_data.model_dump_json(),
             headers = headers)
 
@@ -184,7 +184,7 @@ async def test_get_users():
     # Envoie une requête GET pour récupérer la liste des utilisateurs
     async with httpx.AsyncClient() as client:
         response = await client.get(
-            "http://127.0.0.1:8000/coach/users", 
+            "http://127.0.0.1:8000/utilisateur", 
             headers=headers )
 
     # Vérifie la réponse et les résultats attendus
@@ -248,7 +248,7 @@ async def test_liste_enregistrement():
     async with httpx.AsyncClient() as client:
         response = await client.get(
             "http://127.0.0.1:8000/enregistrement", 
-            params = { "user_id" : numero_insertion },
+            params = { "id_utilisateur" : numero_insertion },
             headers=headers )
 
     # Vérifie la réponse et les résultats attendus

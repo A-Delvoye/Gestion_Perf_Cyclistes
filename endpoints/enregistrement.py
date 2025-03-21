@@ -33,7 +33,7 @@ unauthorised_exception = HTTPException(
 # region Création d'un Enregistrement 
 #______________________________________________________________________________
 @router.post("/enregistrement", response_model=RecordInfoData)
-def create_record(
+def create_enregistrement(
     record_data: RecordInfoData, 
     token : str = Depends(record_scheme)) -> RecordInfoData:
 
@@ -61,9 +61,9 @@ def create_record(
 #
 # region Liste des enregistrements
 #______________________________________________________________________________
-@router.get("/enregistrement", response_model=List[RecordInfoData])
+@router.get("/enregistrement/{id_utilisateur}", response_model=List[RecordInfoData])
 def get_enregistrement(
-    user_id : int = 0,
+    id_utilisateur : int = 0,
     token : str  = Depends(record_scheme), 
     ) -> list[RecordInfoData]:
 

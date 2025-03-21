@@ -26,35 +26,3 @@ unauthorised_exception = HTTPException(
     headers={"WWW-Authenticate": "Bearer"},
 )
 
-#______________________________________________________________________________
-#
-# region Liste des utilisateurs (Admin)
-#______________________________________________________________________________
-@router.get("/coach/users", response_model=List[UserInfoData])
-def get_users(
-    token : str  = Depends(cyclist_list_scheme), 
-    ) -> list[UserInfoData]:
-
-    if not is_valid_token(token) :
-        raise unauthorised_exception
-    
-    payload = verify_token(token)
-    db_admin = get_current_admin(payload)
-
-    db_session = DB_Session()
-    db_users = db_session.get_user_list()
-
-    users_data = []
-    for db_user in db_users :
-        users_data.append(
-            UserInfoData (
-                username = db_user.username, 
-                email = db_user.email,
-                role = db_user.role))
-        
-    users_data : list[UserInfoData] = users_data
-    return users_data
-
-
-
-

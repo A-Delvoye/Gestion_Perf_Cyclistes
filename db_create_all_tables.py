@@ -159,7 +159,7 @@ for user in users :
         password_hash=user[2], 
         role = str("cycliste"))
     
-    db_session.insert_user(db_user)
+    db_session.create_user(db_user)
     count +=1
 
 print(f"{count} UtilisateurDB ajoutés")

@@ -16,24 +16,30 @@ class DB_Session() :
     # region Utilisateur
     #__________________________________________________________________________
 
-    def insert_user(self, db_user: UtilisateurDB) :
+    def create_user(self, db_user: UtilisateurDB) :
+        commit_as_been_done = False
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
 
             statement = f"INSERT INTO {self.user_tablename} (username, email, password_hash, role)"
             statement += " VALUES (?, ?, ?, ?);"
+
             cursor.execute(statement, (db_user.username,  db_user.email, db_user.password_hash, db_user.role))
 
-            number_of_lines = cursor.rowcount     
-
             connection.commit()
+            commit_as_been_done = True
 
-        return True
+        return commit_as_been_done
 
     def get_user_by_id(self, user_id: int) -> UtilisateurDB:
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
-            cursor.execute(f"SELECT id, username, email, password_hash, role FROM {self.user_tablename} WHERE id = {user_id}")
+
+            statement = "SELECT id, username, email, password_hash, role "
+            statement += f"FROM {self.user_tablename}"
+            statement += f"WHERE id = {user_id}"
+
+            cursor.execute(statement)
             result = cursor.fetchone()
 
             if result :
@@ -81,6 +87,42 @@ class DB_Session() :
             
         return None
     
+    def update_user(self, updating_user : UtilisateurDB) -> UtilisateurDB:
+        commit_as_been_done = False
+        with sqlite3.connect(self.database_path) as connection : 
+            cursor : sqlite3.Cursor = connection.cursor()
+
+            statement  = "UPDATE {self.user_tablename}"
+            statement +=f" SET username = '{updating_user}',"
+            statement +=f" email = '{updating_user.email}',"
+            statement +=f" password_hash = '{updating_user.password_hash}',"
+            statement +=f" role = '{updating_user.role}'"
+            statement +=f" WHERE id = {updating_user.id}"
+    
+            cursor.execute(statement)
+            result = cursor.fetchone()
+
+            if result :
+                db_user = self.load_user(result)
+                return db_user
+            
+        return None
+    
+    def delete_user(self, user_id : str) -> UtilisateurDB:
+        commit_as_been_done = False
+        with sqlite3.connect(self.database_path) as connection : 
+            cursor : sqlite3.Cursor = connection.cursor()
+
+            statement  = "DELETE FROM {self.user_tablename}"
+            statement +=f" WHERE id = {user_id}"
+    
+            cursor.execute(statement)
+            connection.commit()
+
+            commit_as_been_done = True
+            
+        return commit_as_been_done
+    
     def load_user(self, row) -> UtilisateurDB :
         db_user = UtilisateurDB(
             id = int(row[0]),
@@ -98,6 +140,7 @@ class DB_Session() :
 
     
     def insert_token(self, db_token : JetonValideDB) :
+        commit_as_been_done = False
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
 
@@ -108,8 +151,10 @@ class DB_Session() :
             cursor.execute(statement, (date_str,  db_token.jeton))
             rows = cursor.fetchall()
 
+            connection.commit()
+            commit_as_been_done = True
 
-        return True
+        return commit_as_been_done
     
     def get_db_token(self, token : str) -> JetonValideDB:
         with sqlite3.connect(self.database_path) as connection : 
@@ -138,14 +183,18 @@ class DB_Session() :
         return db_token
     
     def delete_token(self, db_token : JetonValideDB):
+        commit_as_been_done = False
         with sqlite3.connect(self.database_path) as connection : 
+
             cursor : sqlite3.Cursor = connection.cursor()
 
             statement  = f"DELETE FROM {self.token_tablename}"
             statement +=f" WHERE id = {db_token.id}"
             cursor.execute(statement)
 
-        return True
+            commit_as_been_done = True
+
+        return commit_as_been_done
     
     def delete_invalid_tokens(self) -> int :
         with sqlite3.connect(self.database_path) as connection : 
