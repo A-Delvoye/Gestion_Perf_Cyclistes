@@ -12,7 +12,7 @@ class UserInfoData(BaseModel):
     id : Optional[int] = None
     username: str
     email : Optional [str] = None
-    role: str = "cycliste"
+    role: str 
 
 #______________________________________________________________________________
 #

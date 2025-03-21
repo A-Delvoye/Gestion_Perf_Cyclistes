@@ -34,12 +34,22 @@ unauthorised_exception = HTTPException(
 def create_utilisateur(
     creation_data: UserCreateData, 
     token : str = Depends(utilisateur_scheme)) -> UserInfoData:
+    """
+    DOCSTRING de create_utilisateur
+    """
 
     if not is_valid_token(token) :
         raise unauthorised_exception
 
     payload = verify_token(token)
     db_user = get_current_user(payload)
+
+    db_session = DB_Session()
+    creating_user = db_session.get_user_by_name(creation_data.username)
+    if creating_user :
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="A user with the same username allready exists")
 
     if creation_data.role == ApiRole.admin.value :
         if db_user.role != ApiRole.admin.value :
@@ -52,20 +62,26 @@ def create_utilisateur(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Impossible to create a user with role {creation_data.role} ")
         
-    db_user = UtilisateurDB(
+    creating_user = UtilisateurDB(
         username = creation_data.username,
         email=creation_data.email,
         password_hash = get_password_hash(creation_data.password),
         role = creation_data.role)
 
-    db_session = DB_Session()
-    db_session.create_user(db_user)
+    # insert in database
+    db_session.create_user(creating_user)
+
+    created_user = db_session.get_user_by_name(creating_user.username)
+    if not created_user :
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Impossible to retrieve the created user")
 
     user_info_data = UserInfoData(
-        id = db_user.id,
-        username = db_user.username,
-        email = db_user.email,
-        role= db_user.role)     
+        id = created_user.id,
+        username = created_user.username,
+        email = created_user.email,
+        role= created_user.role)     
          
     return user_info_data
 
@@ -77,6 +93,9 @@ def create_utilisateur(
 def update_utilisateur(
     update_data: UserUpdateData, 
     token : str = Depends(utilisateur_scheme)) -> UserInfoData:
+    """
+    DOCSTRING de update_utilisateur
+    """
 
     if not is_valid_token(token) :
         raise unauthorised_exception
@@ -85,38 +104,45 @@ def update_utilisateur(
     db_user = get_current_user(payload)
 
     db_session = DB_Session()
-    target_user = db_session.get_user_by_id(update_data.id)
+    updating_user = db_session.get_user_by_id(update_data.id)
 
     if db_user.role != ApiRole.admin.value:
-        # the admin don't need to check old password to change value
-        if not verify_password(update_data.old_password, target_user.password_hash): 
+        # the admin don't need to check old password to change values
+        if not verify_password(update_data.old_password, updating_user.password_hash): 
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="The old password doesn't match")
     
     match update_data.role :
         case ApiRole.admin.value :
-            pass
+            if db_user.role != ApiRole.admin.value : 
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Only an admin can create an admin")
+            
         case ApiRole.cycliste.value :
             pass
+
         case _ :
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Only {ApiRole.admin.value} and {ApiRole.cycliste.value} role are possibles ")
+                detail=f"Impossible to create a user with role {update_data.role} ")
 
-    target_user.username = update_data.username,
-    target_user.email=update_data.email,
-    target_user.password_hash = get_password_hash(update_data.new_password),
-    target_user.role = update_data.role
+    updating_user.username = update_data.username,
+    updating_user.email=update_data.email,
+    updating_user.password_hash = get_password_hash(update_data.new_password),
+    updating_user.role = update_data.role
 
     db_session = DB_Session()
-    db_session.update_user(target_user)
+    db_session.update_user(updating_user)
+
+    updated_user = db_session.get_user_by_id(updating_user.id)
 
     user_info_data = UserInfoData(
-        email = db_user.email, 
-        username = db_user.username,
-        role= db_user.role)     
-         
+        id = updated_user.id,
+        username = updated_user.username,
+        email = updated_user.email, 
+        role= updated_user.role)     
     return user_info_data
 
 #______________________________________________________________________________
@@ -127,6 +153,9 @@ def update_utilisateur(
 def delete_utilisateur(
     id_utilisateur : int, 
     token : str = Depends(utilisateur_scheme)) -> UserInfoData:
+    """
+    DOCSTRING de delete_utilisateur
+    """
 
     if not is_valid_token(token) :
         raise unauthorised_exception
@@ -135,15 +164,20 @@ def delete_utilisateur(
     db_user = get_current_user(payload)
 
     db_session = DB_Session()
-    selected_user = db_session.get_user_by_id(id_utilisateur)
+    deleting_user = db_session.get_user_by_id(id_utilisateur)
 
-    if selected_user.role == ApiRole.admin.value :
+    if deleting_user.role == ApiRole.admin.value :
         if db_user.role != ApiRole.admin.value :
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Only an admin can delete an admin")
     
-    db_session.delete_user(selected_user.id)
+    db_session.delete_user(deleting_user.id)
+ 
+    if db_session.get_user_by_id(deleting_user.id) :
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"User {id_utilisateur} has not been deleted")
 
     user_info_data = UserInfoData(
         email = db_user.email, 
@@ -158,9 +192,12 @@ def delete_utilisateur(
 # region Liste des utilisateurs 
 #______________________________________________________________________________
 @router.get("/utilisateur", response_model=List[UserInfoData])
-def get_users(
+def get_utilisateurs(
     token : str  = Depends(utilisateur_scheme), 
     ) -> list[UserInfoData]:
+    """
+    DOCSTRING de get_utilisateurs
+    """
 
     if not is_valid_token(token) :
         raise unauthorised_exception

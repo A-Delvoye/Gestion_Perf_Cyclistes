@@ -11,7 +11,7 @@ from db.db_session import DB_Session
 from db.token_white_list import register_token, is_valid_token, invalidate_token
 
 from models.utilisateur_db import UtilisateurDB
-from schemas.user_data import UserInfoData, UserCreationData
+from schemas.user_data import UserInfoData, UserCreateData, UserUpdateData
 from schemas.auth_data import Token
 from utils.jwt_handlers import verify_token
 

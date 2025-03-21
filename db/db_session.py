@@ -16,7 +16,7 @@ class DB_Session() :
     # region Utilisateur
     #__________________________________________________________________________
 
-    def create_user(self, db_user: UtilisateurDB) :
+    def create_user(self, creating_user: UtilisateurDB) -> bool:
         commit_as_been_done = False
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
@@ -24,7 +24,9 @@ class DB_Session() :
             statement = f"INSERT INTO {self.user_tablename} (username, email, password_hash, role)"
             statement += " VALUES (?, ?, ?, ?);"
 
-            cursor.execute(statement, (db_user.username,  db_user.email, db_user.password_hash, db_user.role))
+            creating_values = (creating_user.username,  creating_user.email, creating_user.password_hash, creating_user.role)
+
+            cursor.execute(statement, creating_values)
 
             connection.commit()
             commit_as_been_done = True
@@ -35,9 +37,9 @@ class DB_Session() :
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
 
-            statement = "SELECT id, username, email, password_hash, role "
-            statement += f"FROM {self.user_tablename}"
-            statement += f"WHERE id = {user_id}"
+            statement = "SELECT id, username, email, password_hash, role"
+            statement += f" FROM {self.user_tablename}"
+            statement += f" WHERE id = {user_id}"
 
             cursor.execute(statement)
             result = cursor.fetchone()
@@ -87,33 +89,31 @@ class DB_Session() :
             
         return None
     
-    def update_user(self, updating_user : UtilisateurDB) -> UtilisateurDB:
+    def update_user(self, updating_user : UtilisateurDB) -> bool:
         commit_as_been_done = False
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
 
-            statement  = "UPDATE {self.user_tablename}"
-            statement +=f" SET username = '{updating_user}',"
+            statement  = f"UPDATE {self.user_tablename}"
+            statement +=f" SET username = '{updating_user.username}',"
             statement +=f" email = '{updating_user.email}',"
             statement +=f" password_hash = '{updating_user.password_hash}',"
             statement +=f" role = '{updating_user.role}'"
             statement +=f" WHERE id = {updating_user.id}"
     
             cursor.execute(statement)
-            result = cursor.fetchone()
+            connection.commit()
 
-            if result :
-                db_user = self.load_user(result)
-                return db_user
+            commit_as_been_done = True
             
-        return None
+        return commit_as_been_done
     
-    def delete_user(self, user_id : str) -> UtilisateurDB:
+    def delete_user(self, user_id : str) -> bool:
         commit_as_been_done = False
         with sqlite3.connect(self.database_path) as connection : 
             cursor : sqlite3.Cursor = connection.cursor()
 
-            statement  = "DELETE FROM {self.user_tablename}"
+            statement  = f"DELETE FROM {self.user_tablename}"
             statement +=f" WHERE id = {user_id}"
     
             cursor.execute(statement)
@@ -138,7 +138,6 @@ class DB_Session() :
     # region Jeton 
     #__________________________________________________________________________
 
-    
     def insert_token(self, db_token : JetonValideDB) :
         commit_as_been_done = False
         with sqlite3.connect(self.database_path) as connection : 
