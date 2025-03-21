@@ -153,10 +153,15 @@ Authorization: Bearer <token>
 
 ---
 📢 Contact & Support
-- (https://github.com/A-Delvoye)
-- (https://github.com/NicoCasso)
-📧 Auteurs : wbensolt@example.com
-🌐 Projet : (https://github.com/A-Delvoye/Gestion_Perf_Cyclistes)
+
+📧 Auteurs : 
+
+- [Antoine Delvoye](https://github.com/A-Delvoye)
+- [Nicolas Cassonnet](https://github.com/NicoCasso)
+
+🌐 Projet : 
+[Gestion_Perf_Cyclistes]
+(https://github.com/A-Delvoye/Gestion_Perf_Cyclistes)
 
 
 N’hésitez pas à contribuer au projet et à ouvrir une issue en cas de problème ! 🚀
