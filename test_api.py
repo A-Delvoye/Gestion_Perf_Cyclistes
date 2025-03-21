@@ -134,7 +134,7 @@ async def test_create_user(role : ApiRole) :
     
     prefix = "user" if role == ApiRole.cycliste else "coach"
            
-    n = str(random.randint(3, 99))
+    n = str(random.randint(1, 1000))
     proto_email = prefix +str(n) + ".fakemail@fakeprovider.com"
     proto_username = prefix+ str(n)
 
@@ -205,6 +205,7 @@ async def test_update_user():
         new_password= final_username)
     
     # création d'utilisateur
+    creation_response = None
     async with httpx.AsyncClient() as client:
         response = await client.post(
             "http://127.0.0.1:8000/utilisateur", 
@@ -310,15 +311,15 @@ async def test_liste_enregistrement():
 
     # Envoie une requête GET pour récupérer la liste des utilisateurs
     async with httpx.AsyncClient() as client:
+        request_url = f"http://127.0.0.1:8000/enregistrement/{numero_insertion}"
         response = await client.get(
-            "http://127.0.0.1:8000/enregistrement", 
-            params = { "id_utilisateur" : numero_insertion },
+            request_url,
             headers=headers )
 
     # Vérifie la réponse et les résultats attendus
     if response.status_code == 200 :
         print ("test_liste_enregistrement : OK")
-        print(response.json())
+        #print(response.json())
     else : 
         print ("test_liste_enregistrement : errors / ko")
 
@@ -362,17 +363,17 @@ async def all_tests() :
     await asyncio.sleep(1)
  
     tests = []
-    # tests.append(test_login)
-    # tests.append(test_logout)
+    tests.append(test_login)
+    tests.append(test_logout)
 
-    # tests.append(test_create_user_coach)
-    # tests.append(test_create_user_cyclist)
+    tests.append(test_create_user_coach)
+    tests.append(test_create_user_cyclist)
     tests.append(test_update_user)
     #tests.append(test_delete_user)
 
-    # tests.append(test_get_users)
-    # tests.append(test_creation_enregistrement)
-    # tests.append(test_liste_enregistrement)
+    tests.append(test_get_users)
+    tests.append(test_creation_enregistrement)
+    tests.append(test_liste_enregistrement)
 
     # Faire les requêtes HTTP
     print("_________________________________________________________")

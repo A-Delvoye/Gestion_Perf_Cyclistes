@@ -105,6 +105,12 @@ def update_utilisateur(
 
     db_session = DB_Session()
     updating_user = db_session.get_user_by_id(update_data.id)
+    if not updating_user :
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Existing user not found")
+
+    updating_user : UtilisateurDB = updating_user
 
     if db_user.role != ApiRole.admin.value:
         # the admin don't need to check old password to change values
@@ -128,12 +134,14 @@ def update_utilisateur(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Impossible to create a user with role {update_data.role} ")
 
-    updating_user.username = update_data.username,
-    updating_user.email=update_data.email,
-    updating_user.password_hash = get_password_hash(update_data.new_password),
-    updating_user.role = update_data.role
+    updating_user = UtilisateurDB(
+        id=updating_user.id,
+        username = update_data.username,
+        email=update_data.email,
+        password_hash = get_password_hash(update_data.new_password),
+        role = update_data.role
+    )
 
-    db_session = DB_Session()
     db_session.update_user(updating_user)
 
     updated_user = db_session.get_user_by_id(updating_user.id)

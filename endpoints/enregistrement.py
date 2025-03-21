@@ -72,12 +72,11 @@ def get_enregistrement(
     
     payload = verify_token(token)
     db_user = get_current_user(payload)
-    if user_id ==0 : 
-        user_id = db_user.id
-
+    if id_utilisateur ==0 : 
+        id_utilisateur = db_user.id
 
     db_session_record = DB_Session_Record()
-    db_records : list[EnregistrementDB] = db_session_record.get_record_list(user_id)
+    db_records : list[EnregistrementDB] = db_session_record.get_record_list(id_utilisateur)
 
     record_list = []
     for db_record in db_records :
